@@ -27,92 +27,124 @@ export default function RegisterPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || 'Registration failed');
+        setError(data.error || 'Registration failed. Please try again.');
       } else {
         router.push('/login?registered=true');
       }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
+    } catch {
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-md">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create an account
-          </h2>
+    <div className="min-h-screen bg-mesh flex items-center justify-center p-4">
+      <div className="w-full max-w-md animate-fade-in-up">
+        {/* LOGO */}
+        <div className="flex flex-col items-center mb-8">
+          <Link href="/" className="flex items-center gap-2 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white font-bold shadow-lg glow-brand">
+              N
+            </div>
+            <span className="font-bold text-xl text-white">NeuralChat</span>
+          </Link>
+          <h1 className="text-2xl font-bold text-white mb-1">Create your account</h1>
+          <p className="text-slate-400 text-sm">Start building AI chatbots today — free</p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+
+        {/* CARD */}
+        <div className="glass-card-solid p-8">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
-              {error}
+            <div className="alert-error mb-6 animate-fade-in">
+              <div className="flex items-center gap-2">
+                <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                {error}
+              </div>
             </div>
           )}
-          <div className="rounded-md shadow-sm flex flex-col gap-4">
+
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="name" className="sr-only">Name</label>
+              <label htmlFor="name" className="block text-sm font-medium text-slate-300 mb-2">
+                Full Name
+              </label>
               <input
                 id="name"
-                name="name"
                 type="text"
                 required
-                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Full Name"
+                className="input-field"
+                placeholder="Jane Smith"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
             </div>
+
             <div>
-              <label htmlFor="email-address" className="sr-only">Email address</label>
+              <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
+                Email address
+              </label>
               <input
-                id="email-address"
-                name="email"
+                id="email"
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
+                className="input-field"
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
+
             <div>
-              <label htmlFor="password" className="sr-only">Password</label>
+              <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
+                Password
+                <span className="text-slate-500 font-normal ml-1">(min 6 characters)</span>
+              </label>
               <input
                 id="password"
-                name="password"
                 type="password"
                 autoComplete="new-password"
                 required
-                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Password (min 6 characters)"
+                minLength={6}
+                className="input-field"
+                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-          </div>
 
-          <div>
             <button
               type="submit"
+              id="register-submit-btn"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              className="btn-brand w-full py-3 text-base mt-2"
             >
-              {isLoading ? 'Registering...' : 'Register'}
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Creating account...
+                </span>
+              ) : (
+                'Create Account'
+              )}
             </button>
-          </div>
-          
-          <div className="text-center text-sm text-gray-600">
+          </form>
+
+          <div className="divider my-6" />
+
+          <p className="text-center text-sm text-slate-400">
             Already have an account?{' '}
-            <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
+            <Link href="/login" className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
               Sign in
             </Link>
-          </div>
-        </form>
+          </p>
+        </div>
       </div>
     </div>
   );

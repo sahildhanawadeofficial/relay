@@ -19,26 +19,51 @@ export default function DashboardClient({ initialChatbots }: { initialChatbots: 
     setChatbots([newChatbot, ...chatbots]);
   };
 
+  const handleDelete = (uuid: string) => {
+    setChatbots((prev) => prev.filter((c) => c.uuid !== uuid));
+  };
+
   return (
-    <div>
-      <div className="mb-6">
+    <div className="animate-fade-in-up">
+      {/* TOOLBAR */}
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-lg font-semibold text-white">
+          {chatbots.length > 0 ? `${chatbots.length} Chatbot${chatbots.length !== 1 ? 's' : ''}` : 'No Chatbots Yet'}
+        </h2>
         <button
+          id="create-chatbot-btn"
           onClick={() => setIsModalOpen(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
+          className="btn-brand"
         >
-          + Create Chatbot
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          New Chatbot
         </button>
       </div>
 
+      {/* EMPTY STATE */}
       {chatbots.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-xl shadow-sm border border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No chatbots yet</h3>
-          <p className="text-gray-500">Create your first chatbot to get started.</p>
+        <div className="glass-card p-16 text-center">
+          <div className="text-6xl mb-4">🤖</div>
+          <h3 className="text-xl font-semibold text-white mb-2">Create your first chatbot</h3>
+          <p className="text-slate-400 mb-8 max-w-sm mx-auto text-sm leading-relaxed">
+            Give it a name, upload your documents, and start asking questions powered by your own knowledge base.
+          </p>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="btn-brand mx-auto"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            Create Chatbot
+          </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 stagger">
           {chatbots.map((bot) => (
-            <ChatbotCard key={bot.uuid} chatbot={bot} />
+            <ChatbotCard key={bot.uuid} chatbot={bot} onDelete={handleDelete} />
           ))}
         </div>
       )}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function CreateChatbotModal({
   onClose,
@@ -12,6 +12,15 @@ export default function CreateChatbotModal({
   const [name, setName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  // Close on Escape key
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,47 +50,94 @@ export default function CreateChatbotModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-          <h2 className="text-xl font-semibold">Create New Chatbot</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl font-bold">×</button>
+    <div
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div className="glass-card-solid w-full max-w-md overflow-hidden animate-fade-in-up shadow-2xl">
+        {/* HEADER */}
+        <div className="px-6 py-5 border-b border-white/8 flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-white">New Chatbot</h2>
+            <p className="text-sm text-slate-400 mt-0.5">A UUID will be generated automatically</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/8 transition-colors"
+            aria-label="Close modal"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
-        
+
+        {/* BODY */}
         <form onSubmit={handleSubmit} className="p-6">
-          {error && <div className="mb-4 text-sm text-red-600 bg-red-50 p-3 rounded">{error}</div>}
-          
+          {error && (
+            <div className="alert-error mb-5 animate-fade-in">
+              {error}
+            </div>
+          )}
+
           <div className="mb-6">
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="chatbot-name" className="block text-sm font-medium text-slate-300 mb-2">
               Chatbot Name
             </label>
             <input
-              id="name"
+              id="chatbot-name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g., HR Knowledge Base"
+              className="input-field"
+              placeholder="e.g., HR Knowledge Base, Customer Support..."
               required
               maxLength={100}
+              autoFocus
             />
+            <p className="text-xs text-slate-500 mt-2">
+              {name.length}/100 characters
+            </p>
           </div>
-          
-          <div className="flex justify-end gap-3">
+
+          {/* PREVIEW */}
+          <div className="glass-card p-3 mb-6 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+              {name ? name.charAt(0).toUpperCase() : '?'}
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-white truncate">{name || 'Chatbot Name'}</p>
+              <p className="text-xs text-slate-500 font-mono">UUID auto-generated on create</p>
+            </div>
+          </div>
+
+          {/* ACTIONS */}
+          <div className="flex gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md font-medium"
               disabled={isSubmitting}
+              className="btn-ghost flex-1"
             >
               Cancel
             </button>
             <button
               type="submit"
+              id="create-chatbot-submit-btn"
               disabled={isSubmitting || !name.trim()}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 disabled:opacity-50"
+              className="btn-brand flex-1"
             >
-              {isSubmitting ? 'Creating...' : 'Create'}
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Creating...
+                </span>
+              ) : (
+                'Create Chatbot'
+              )}
             </button>
           </div>
         </form>

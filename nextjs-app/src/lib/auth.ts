@@ -1,8 +1,6 @@
 import NextAuth from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
+import Google from 'next-auth/providers/google';
 import { authConfig } from './auth.config';
-import { z } from 'zod';
-import bcrypt from 'bcryptjs';
 import { dbConnect } from './db';
 import { User } from '@/models/User';
 
@@ -10,43 +8,54 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   session: { strategy: 'jwt' },
   providers: [
-    Credentials({
-      name: 'Credentials',
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
-      },
-      async authorize(credentials) {
-        const parsedCredentials = z
-          .object({ email: z.string().email(), password: z.string().min(6) })
-          .safeParse(credentials);
-
-        if (parsedCredentials.success) {
-          const { email, password } = parsedCredentials.data;
-          
-          await dbConnect();
-          const user = await User.findOne({ email: email.toLowerCase() });
-          
-          if (!user) return null;
-          
-          const passwordsMatch = await bcrypt.compare(password, user.passwordHash);
-          if (passwordsMatch) {
-            return {
-              id: user._id.toString(),
-              name: user.name,
-              email: user.email,
-            };
-          }
-        }
-        return null;
-      },
+    Google({
+      clientId: process.env.AUTH_GOOGLE_ID!,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET!,
     }),
   ],
   callbacks: {
     ...authConfig.callbacks,
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
+    async signIn({ user, account }) {
+      // Only handle Google sign-ins
+      if (account?.provider !== 'google') return false;
+
+      try {
+        await dbConnect();
+
+        // Upsert: create user on first login, update googleId on subsequent logins
+        await User.findOneAndUpdate(
+          { email: user.email!.toLowerCase() },
+          {
+            $setOnInsert: {
+              name: user.name ?? 'Google User',
+              email: user.email!.toLowerCase(),
+            },
+            $set: {
+              googleId: user.id,
+              image: user.image,
+            },
+          },
+          { upsert: true, new: true }
+        );
+
+        return true;
+      } catch (error) {
+        console.error('Error upserting user on Google sign-in:', error);
+        return false;
+      }
+    },
+    async jwt({ token, user, account }) {
+      // On first sign-in, fetch the MongoDB _id and attach it to the token
+      if (account?.provider === 'google' && user?.email) {
+        try {
+          await dbConnect();
+          const dbUser = await User.findOne({ email: user.email.toLowerCase() });
+          if (dbUser) {
+            token.id = dbUser._id.toString();
+          }
+        } catch (error) {
+          console.error('Error fetching user in jwt callback:', error);
+        }
       }
       return token;
     },
@@ -56,5 +65,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return session;
     },
-  }
+  },
 });

@@ -3,12 +3,12 @@ import { User } from '../models/User';
 import { Chatbot } from '../models/Chatbot';
 
 describe('Model Validations', () => {
-  it('User model should require name, email, passwordHash', () => {
+  it('User model should require name and email, while passwordHash is optional', () => {
     const user = new User();
     const err = user.validateSync();
     expect(err?.errors.name).toBeDefined();
     expect(err?.errors.email).toBeDefined();
-    expect(err?.errors.passwordHash).toBeDefined();
+    expect(err?.errors.passwordHash).toBeUndefined();
   });
 
   it('Chatbot model should require uuid, name, userId', () => {

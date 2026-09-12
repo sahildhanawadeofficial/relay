@@ -5,4 +5,4 @@
  * Update this to your production URL before publishing the npm package.
  * Customers only need to pass `apiKey` — they never need to set this.
  */
-export const DEFAULT_BASE_URL = 'https://your-app.com';
+export const DEFAULT_BASE_URL = 'https://relay.vercel.app';

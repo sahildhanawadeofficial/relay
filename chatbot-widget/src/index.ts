@@ -2,6 +2,7 @@ import { ChatWidget } from './widget';
 import type { WidgetInitConfig } from './types';
 
 export type { WidgetInitConfig, WidgetPosition, ChatMessage, ChatSource, RemoteWidgetConfig } from './types';
+export { DEFAULT_BASE_URL } from './config';
 
 let activeWidget: ChatWidget | null = null;
 
@@ -9,11 +10,10 @@ let activeWidget: ChatWidget | null = null;
  * Mounts the chat widget onto the current page.
  *
  * ```ts
- * import { init } from 'chatbot-embed-widget';
+ * import { init } from 'relay-chat-widget';
  *
  * init({
  *   apiKey: 'pk_live_...',      // from the dashboard's "Embed & API" tab
- *   baseUrl: 'https://your-app.com',
  * });
  * ```
  *

@@ -1,4 +1,4 @@
-# chatbot-embed-widget
+# relay-chat-widget
 
 A framework-agnostic, floating chat widget that lets your customers embed
 your RAG chatbot on their own website — a chat icon in the corner that
@@ -14,7 +14,7 @@ Works on WordPress, Wix, Shopify, static HTML — no build step, no npm.
 1. Build this package (`npm run build`) and host `dist/index.global.js`
    somewhere public — e.g. copy it to your Next.js app's `public/widget.js`
    so it's served at `https://your-app.com/widget.js`, or publish this
-   package to npm and use a CDN like `https://unpkg.com/chatbot-embed-widget`.
+   package to npm and use a CDN like `https://unpkg.com/relay-chat-widget`.
 2. Add this snippet before `</body>` on the customer's site:
 
 ```html
@@ -23,7 +23,6 @@ Works on WordPress, Wix, Shopify, static HTML — no build step, no npm.
   window.addEventListener('DOMContentLoaded', function () {
     ChatbotWidget.init({
       apiKey: 'pk_live_xxxxxxxxxxxxxxxxxxxx',
-      baseUrl: 'https://your-app.com',
     });
   });
 </script>
@@ -32,15 +31,14 @@ Works on WordPress, Wix, Shopify, static HTML — no build step, no npm.
 ## Option B — npm / bundler (React, Vue, Next.js, etc.)
 
 ```bash
-npm install chatbot-embed-widget
+npm install relay-chat-widget
 ```
 
 ```ts
-import { init } from 'chatbot-embed-widget';
+import { init } from 'relay-chat-widget';
 
 init({
   apiKey: 'pk_live_xxxxxxxxxxxxxxxxxxxx',
-  baseUrl: 'https://your-app.com',
 });
 ```
 
@@ -51,7 +49,7 @@ Call this once, e.g. in your root layout/App component's mount effect.
 | Option | Required | Description |
 |---|---|---|
 | `apiKey` | ✅ | Per-chatbot public key from the dashboard's "Embed & API" tab. Identifies which chatbot to use. |
-| `baseUrl` | ✅ | Base URL of your chatbot platform deployment, e.g. `https://your-app.com`. |
+| `baseUrl` | | Override the platform URL baked into `src/config.ts` (`DEFAULT_BASE_URL`). Customers normally omit this. |
 | `position` | | `'bottom-right' \| 'bottom-left'`. Overrides the dashboard setting for this specific embed. |
 | `primaryColor` | | Hex color, e.g. `'#4f46e5'`. Overrides the dashboard setting. |
 | `welcomeMessage` | | Overrides the dashboard setting. |
@@ -74,6 +72,16 @@ dashboard's value.
   domain, for defense in depth.
 - Rotating a key from the dashboard immediately invalidates the old one —
   update the embed snippet everywhere it's used afterward.
+
+## Platform URL (`src/config.ts`)
+
+Set your production URL once in `src/config.ts` before publishing:
+
+```ts
+export const DEFAULT_BASE_URL = 'https://your-app.com';
+```
+
+Customers only pass `apiKey` — the widget calls `${DEFAULT_BASE_URL}/api/public/*`.
 
 ## Development
 

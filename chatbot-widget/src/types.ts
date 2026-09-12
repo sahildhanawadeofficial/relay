@@ -5,10 +5,10 @@ export interface WidgetInitConfig {
   apiKey: string;
   /**
    * Base URL of the chatbot platform (the Next.js app), e.g. "https://your-app.com".
-   * Required — there is no default, since this widget can point at any
-   * self-hosted deployment of the platform.
+   * Optional — defaults to `DEFAULT_BASE_URL` from `src/config.ts` (set once
+   * when you publish the package; customers normally only pass `apiKey`).
    */
-  baseUrl: string;
+  baseUrl?: string;
   /** Override the dashboard-configured icon position ('bottom-right' | 'bottom-left'). */
   position?: WidgetPosition;
   /** Override the dashboard-configured accent color (hex, e.g. "#4f46e5"). */

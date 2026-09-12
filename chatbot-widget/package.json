@@ -1,7 +1,7 @@
 {
-  "name": "chatbot-embed-widget",
+  "name": "relay-chat-widget",
   "version": "0.1.0",
-  "description": "Embeddable floating chat widget for your RAG chatbot platform. Drop it into any website via a <script> tag or install it as an npm package.",
+  "description": "Embeddable floating chat widget for Relay RAG chatbots. Drop it into any website via a script tag or install as an npm package.",
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -18,11 +18,6 @@
   "files": [
     "dist"
   ],
-  "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
-    "build:copy-local": "tsup && node -e \"require('fs').copyFileSync('dist/index.global.js', '../nextjs-app/public/widget.js')\""
-  },
   "keywords": [
     "chatbot",
     "widget",
@@ -32,6 +27,21 @@
     "customer-support"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pratik-kamble-pk/relay.git",
+    "directory": "chatbot-widget"
+  },
+  "bugs": {
+    "url": "https://github.com/pratik-kamble-pk/relay/issues"
+  },
+  "homepage": "https://github.com/pratik-kamble-pk/relay/tree/main/chatbot-widget#readme",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "prepublishOnly": "npm run build",
+    "build:copy-local": "tsup && node -e \"require('fs').copyFileSync('dist/index.global.js', '../nextjs-app/public/widget.js')\""
+  },
   "devDependencies": {
     "tsup": "^8.3.5",
     "typescript": "^5.8.3"

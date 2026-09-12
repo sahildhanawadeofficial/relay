@@ -1,4 +1,5 @@
 import { fetchWidgetConfig, sendChatMessage } from './api';
+import { DEFAULT_BASE_URL } from './config';
 import type { ChatMessage, WidgetInitConfig, WidgetPosition } from './types';
 
 const DEFAULTS = {
@@ -14,8 +15,10 @@ function nextId(): string {
   return `msg-${Date.now()}-${uid}`;
 }
 
+type ResolvedWidgetConfig = WidgetInitConfig & { baseUrl: string };
+
 export class ChatWidget {
-  private config: WidgetInitConfig;
+  private config: ResolvedWidgetConfig;
   private resolved = { ...DEFAULTS };
   private messages: ChatMessage[] = [];
   private isOpen = false;
@@ -37,9 +40,11 @@ export class ChatWidget {
 
   constructor(config: WidgetInitConfig) {
     if (!config?.apiKey) throw new Error('[ChatbotWidget] "apiKey" is required.');
-    if (!config?.baseUrl) throw new Error('[ChatbotWidget] "baseUrl" is required.');
 
-    this.config = config;
+    this.config = {
+      ...config,
+      baseUrl: config.baseUrl ?? DEFAULT_BASE_URL,
+    };
     // Local overrides passed to init() win immediately; remote (dashboard)
     // config fills in anything not explicitly overridden, once it loads.
     this.resolved = {

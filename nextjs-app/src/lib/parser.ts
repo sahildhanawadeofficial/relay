@@ -15,12 +15,8 @@ export async function extractText(buffer: Buffer, filename: string): Promise<str
       // unpdf provides a serverless-optimized build of PDF.js that works seamlessly in Next.js
       const { getDocumentProxy, extractText: extractPdfText } = await import('unpdf');
       const pdf = await getDocumentProxy(new Uint8Array(buffer));
-      try {
-        const { text } = await extractPdfText(pdf, { mergePages: true });
-        return text || '';
-      } finally {
-        await pdf.destroy();
-      }
+      const { text } = await extractPdfText(pdf, { mergePages: true });
+      return text || '';
     }
 
     case '.docx': {

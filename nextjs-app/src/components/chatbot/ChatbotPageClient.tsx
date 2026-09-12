@@ -1,11 +1,15 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import EmbedSettings, { WidgetConfig } from './EmbedSettings';
 
 interface ChatbotData {
   uuid: string;
   name: string;
   createdAt?: string;
+  apiKey?: string | null;
+  allowedOrigins?: string[];
+  widgetConfig?: WidgetConfig;
 }
 
 interface Message {
@@ -28,6 +32,7 @@ type UploadStatus =
   | { type: 'error'; message: string };
 
 export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData }) {
+  const [activeTab, setActiveTab] = useState<'chat' | 'embed'>('chat');
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -154,7 +159,48 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
   };
 
   return (
-    <div className="flex h-[calc(100vh-69px)]">
+    <div className="flex flex-col h-[calc(100vh-69px)]">
+      {/* ─────────── TAB BAR ─────────── */}
+      <div className="flex-shrink-0 border-b border-white/5 bg-[rgba(5,5,15,0.6)] px-6">
+        <div className="flex gap-6">
+          {(
+            [
+              { id: 'chat', label: '💬 Chat' },
+              { id: 'embed', label: '🔌 Embed & API' },
+            ] as const
+          ).map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === tab.id
+                  ? 'text-white border-indigo-500'
+                  : 'text-slate-500 border-transparent hover:text-slate-300'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {activeTab === 'embed' ? (
+        <EmbedSettings
+          chatbot={{
+            uuid: chatbot.uuid,
+            name: chatbot.name,
+            apiKey: chatbot.apiKey ?? null,
+            allowedOrigins: chatbot.allowedOrigins ?? ['*'],
+            widgetConfig:
+              chatbot.widgetConfig ?? {
+                position: 'bottom-right',
+                primaryColor: '#4f46e5',
+                welcomeMessage: 'Hi! How can I help you today?',
+              },
+          }}
+        />
+      ) : (
+    <div className="flex flex-1 min-h-0">
       {/* ─────────── SIDEBAR ─────────── */}
       <aside className="w-72 xl:w-80 flex-shrink-0 border-r border-white/5 flex flex-col bg-[rgba(5,5,15,0.6)]">
         {/* SIDEBAR HEADER */}
@@ -415,6 +461,8 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
           </p>
         </div>
       </div>
+    </div>
+      )}
     </div>
   );
 }

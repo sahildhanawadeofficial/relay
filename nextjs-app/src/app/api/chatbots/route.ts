@@ -4,6 +4,7 @@ import { dbConnect } from '@/lib/db';
 import { Chatbot } from '@/models/Chatbot';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
+import { generateApiKey } from '@/lib/apiKey';
 
 export const dynamic = 'force-dynamic';
 
@@ -49,6 +50,9 @@ export async function POST(request: Request) {
       name: result.data.name,
       uuid: uuidv4(),
       userId: session.user.id,
+      // Every chatbot gets a public API key up front so the "Embed & API"
+      // tab has something to show immediately, without a separate step.
+      apiKey: generateApiKey(),
     });
     
     return NextResponse.json(chatbot, { status: 201 });

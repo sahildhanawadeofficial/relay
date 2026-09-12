@@ -2,10 +2,15 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { dbConnect } from '@/lib/db';
 import { Chatbot } from '@/models/Chatbot';
-import { answerChatbotQuery } from '@/lib/chat';
+import { generateApiKey } from '@/lib/apiKey';
 
 export const dynamic = 'force-dynamic';
 
+/**
+ * Regenerates the chatbot's public widget API key. Any previously issued
+ * key (e.g. already embedded on a customer's live website) stops working
+ * immediately — the caller is responsible for updating their embed snippet.
+ */
 export async function POST(request: Request, { params }: { params: Promise<{ chatbotId: string }> }) {
   try {
     const { chatbotId } = await params;
@@ -25,31 +30,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ cha
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const body = await request.json();
-    const { query, top_k } = body;
+    chatbot.apiKey = generateApiKey();
+    await chatbot.save();
 
-    if (!query || typeof query !== 'string' || !query.trim()) {
-      return NextResponse.json({ error: 'Query is required' }, { status: 400 });
-    }
-
-    const topK = top_k || 5;
-
-    const { answer, sources } = await answerChatbotQuery(chatbotId, query.trim(), topK);
-
-    return NextResponse.json(
-      {
-        chatbot_id: chatbotId,
-        query: query.trim(),
-        answer,
-        sources,
-      },
-      { status: 200 }
-    );
-  } catch (error: any) {
-    console.error('Failed to search chatbot:', error);
-    return NextResponse.json(
-      { error: error?.message || 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ apiKey: chatbot.apiKey });
+  } catch (error) {
+    console.error('Failed to rotate API key:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

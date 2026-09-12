@@ -26,6 +26,13 @@ export default async function ChatbotPage({ params }: { params: Promise<{ chatbo
     uuid: chatbot.uuid,
     name: chatbot.name,
     createdAt: chatbot.createdAt.toISOString(),
+    apiKey: chatbot.apiKey ?? null,
+    allowedOrigins: chatbot.allowedOrigins ?? ['*'],
+    widgetConfig: {
+      position: chatbot.widgetConfig?.position ?? 'bottom-right',
+      primaryColor: chatbot.widgetConfig?.primaryColor ?? '#4f46e5',
+      welcomeMessage: chatbot.widgetConfig?.welcomeMessage ?? 'Hi! How can I help you today?',
+    },
   };
 
   return (

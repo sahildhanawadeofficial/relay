@@ -1,0 +1,39 @@
+{
+  "name": "chatbot-embed-widget",
+  "version": "0.1.0",
+  "description": "Embeddable floating chat widget for your RAG chatbot platform. Drop it into any website via a <script> tag or install it as an npm package.",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "unpkg": "dist/index.global.js",
+  "jsdelivr": "dist/index.global.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "build:copy-local": "tsup && node -e \"require('fs').copyFileSync('dist/index.global.js', '../nextjs-app/public/widget.js')\""
+  },
+  "keywords": [
+    "chatbot",
+    "widget",
+    "embed",
+    "rag",
+    "chat-widget",
+    "customer-support"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "tsup": "^8.3.5",
+    "typescript": "^5.8.3"
+  }
+}

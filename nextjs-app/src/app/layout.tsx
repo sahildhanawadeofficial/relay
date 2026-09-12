@@ -3,8 +3,8 @@ import './globals.css';
 import { Providers } from '@/components/Providers';
 
 export const metadata: Metadata = {
-  title: 'NeuralChat — AI Chatbot Platform',
-  description: 'Build custom AI chatbots powered by your own documents. Multi-tenant RAG platform with OpenAI and Pinecone.',
+  title: 'Relay — AI Chatbot Platform',
+  description: 'Relay — build custom AI chatbots powered by your own documents. Multi-tenant RAG platform with OpenRouter and Pinecone.',
   keywords: ['AI', 'chatbot', 'RAG', 'OpenAI', 'document Q&A'],
 };
 

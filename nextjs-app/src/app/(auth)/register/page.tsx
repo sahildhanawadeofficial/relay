@@ -21,9 +21,9 @@ export default function RegisterPage() {
         <div className="flex flex-col items-center mb-8">
           <Link href="/" className="flex items-center gap-2 mb-6">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white font-bold shadow-lg glow-brand">
-              N
+              R
             </div>
-            <span className="font-bold text-xl text-white">NeuralChat</span>
+            <span className="font-bold text-xl text-white">Relay</span>
           </Link>
           <p className="text-slate-400 text-sm">Redirecting to sign in...</p>
         </div>

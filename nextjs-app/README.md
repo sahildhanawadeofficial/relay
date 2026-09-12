@@ -1,6 +1,6 @@
-# Next.js Chatbot Platform Microservice
+# Relay
 
-This microservice handles the UI, authentication, and database operations for the multi-tenant AI chatbot platform. It also acts as an API gateway for the Python RAG service.
+Relay is the Next.js app for the multi-tenant AI chatbot platform — UI, authentication, document management, RAG chat, and the embeddable widget API.
 
 ## Setup
 

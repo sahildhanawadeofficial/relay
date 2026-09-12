@@ -103,18 +103,16 @@ export default function EmbedSettings({ chatbot }: { chatbot: EmbedChatbotData }
   window.addEventListener('DOMContentLoaded', function () {
     ChatbotWidget.init({
       apiKey: '${apiKey ?? 'YOUR_API_KEY'}',
-      baseUrl: '${baseUrl}'
     });
   });
 </script>`;
 
-  const npmSnippet = `npm install chatbot-embed-widget
+  const npmSnippet = `npm install relay-chat-widget
 
-import { init } from 'chatbot-embed-widget';
+import { init } from 'relay-chat-widget';
 
 init({
   apiKey: '${apiKey ?? 'YOUR_API_KEY'}',
-  baseUrl: '${baseUrl}',
 });`;
 
   return (

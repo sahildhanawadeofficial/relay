@@ -34,9 +34,9 @@ export default async function DashboardPage() {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white font-bold text-sm shadow-lg">
-              N
+              R
             </div>
-            <span className="font-bold text-white tracking-tight">NeuralChat</span>
+            <span className="font-bold text-white tracking-tight">Relay</span>
           </Link>
 
           <div className="flex items-center gap-4">

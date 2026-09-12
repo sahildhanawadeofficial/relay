@@ -7,9 +7,9 @@ export default function Home() {
       <nav className="flex items-center justify-between px-6 py-5 md:px-12 border-b border-white/5">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white font-bold text-sm shadow-lg">
-            N
+            R
           </div>
-          <span className="font-bold text-lg text-white tracking-tight">NeuralChat</span>
+          <span className="font-bold text-lg text-white tracking-tight">Relay</span>
         </div>
         <div className="flex items-center gap-3">
           <Link href="/login" className="btn-ghost text-sm py-2 px-4">
@@ -82,7 +82,7 @@ export default function Home() {
 
       {/* FOOTER */}
       <footer className="py-6 text-center text-slate-600 text-sm border-t border-white/5">
-        © {new Date().getFullYear()} NeuralChat. Multi-tenant AI chatbot platform.
+        © {new Date().getFullYear()} Relay. Multi-tenant AI chatbot platform.
       </footer>
     </main>
   );

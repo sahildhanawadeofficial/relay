@@ -77,7 +77,7 @@ export async function generateAnswer(
           Authorization: `Bearer ${apiKey}`,
           // Recommended (not required) by OpenRouter for attribution/analytics.
           'HTTP-Referer': process.env.NEXTAUTH_URL || 'http://localhost:3000',
-          'X-Title': 'AI Chatbot Platform',
+          'X-Title': 'Relay',
         },
         body: JSON.stringify({
           model,

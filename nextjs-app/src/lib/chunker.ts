@@ -16,10 +16,12 @@ export interface ChunkerOptions {
   separators?: string[];
 }
 
+// multilingual-e5-large has a hard 96-token (~300 char) input limit.
+// Keep chunks at ≤200 chars so even token-dense text stays within bounds.
 export function splitText(
   text: string,
-  chunkSize = 1000,
-  chunkOverlap = 200,
+  chunkSize = 200,
+  chunkOverlap = 30,
   separators = ['\n\n', '\n', '. ', ' ', '']
 ): string[] {
   if (text.length <= chunkSize) {
@@ -97,8 +99,8 @@ export function chunkDocument(
   metadata: ChunkMetadata,
   options?: ChunkerOptions
 ): TextChunk[] {
-  const chunkSize = options?.chunkSize ?? 1000;
-  const chunkOverlap = options?.chunkOverlap ?? 200;
+  const chunkSize = options?.chunkSize ?? 200;
+  const chunkOverlap = options?.chunkOverlap ?? 30;
   const separators = options?.separators ?? ['\n\n', '\n', '. ', ' ', ''];
 
   const rawChunks = splitText(text, chunkSize, chunkOverlap, separators);

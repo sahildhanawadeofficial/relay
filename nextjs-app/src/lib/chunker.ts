@@ -16,16 +16,9 @@ export interface ChunkerOptions {
   separators?: string[];
 }
 
-// multilingual-e5-large limit: 96 TOKENS (not characters).
-// The XLM-RoBERTa tokenizer can produce 1 token per 1-2 chars for
-// dense/technical/non-English text. To guarantee < 96 tokens even
-// in the worst case, we cap chunks at 100 characters.
-// MAX_CHARS is a hard absolute cap applied as a final safety net.
-const MAX_CHARS = 100;
-
 /**
  * Hard-slice a string into pieces of at most `size` characters.
- * Used as a last-resort fallback when no separator can break a segment.
+ * Used as a fallback when no separator is found.
  */
 function hardSlice(text: string, size: number): string[] {
   const pieces: string[] = [];
@@ -36,10 +29,13 @@ function hardSlice(text: string, size: number): string[] {
   return pieces;
 }
 
+/**
+ * Recursively split text using hierarchy of separators.
+ */
 export function splitText(
   text: string,
-  chunkSize = 80,
-  chunkOverlap = 15,
+  chunkSize = 800,
+  chunkOverlap = 150,
   separators = ['\n\n', '\n', '. ', ' ']
 ): string[] {
   if (text.length <= chunkSize) {
@@ -56,7 +52,7 @@ export function splitText(
     }
   }
 
-  // No separator found at all — hard-slice the whole text
+  // If no separator found, hard-slice by chunkSize
   if (chosenSeparator === null) {
     return hardSlice(text, chunkSize);
   }
@@ -67,9 +63,8 @@ export function splitText(
   let currentLen = 0;
 
   for (const part of splits) {
-    // If this single part is already too large, recursively split it
+    // If a single part exceeds chunkSize, recursively split it with finer separators
     if (part.length > chunkSize) {
-      // Flush any accumulated current chunk first
       if (currentChunk.length > 0) {
         const chunkStr = currentChunk.join(chosenSeparator).trim();
         if (chunkStr) finalChunks.push(chunkStr);
@@ -79,11 +74,9 @@ export function splitText(
 
       const remainingSeps = separators.slice(separators.indexOf(chosenSeparator) + 1);
       if (remainingSeps.length > 0) {
-        // Try with next-finer separators
         const subChunks = splitText(part, chunkSize, chunkOverlap, remainingSeps);
         finalChunks.push(...subChunks);
       } else {
-        // Last resort: hard character slice
         finalChunks.push(...hardSlice(part, chunkSize));
       }
       continue;
@@ -130,25 +123,15 @@ export function chunkDocument(
   metadata: ChunkMetadata,
   options?: ChunkerOptions
 ): TextChunk[] {
-  const chunkSize = options?.chunkSize ?? 80;
-  const chunkOverlap = options?.chunkOverlap ?? 15;
+  const chunkSize = options?.chunkSize ?? 800;
+  const chunkOverlap = options?.chunkOverlap ?? 150;
   const separators = options?.separators ?? ['\n\n', '\n', '. ', ' '];
 
   const rawChunks = splitText(text, chunkSize, chunkOverlap, separators);
 
-  // Final safety pass: hard-truncate any chunk that somehow exceeds MAX_CHARS.
-  // This is an absolute guarantee regardless of input structure.
-  const safeChunks: string[] = [];
-  for (const chunk of rawChunks) {
-    if (chunk.length > MAX_CHARS) {
-      safeChunks.push(...hardSlice(chunk, MAX_CHARS));
-    } else {
-      safeChunks.push(chunk);
-    }
-  }
-
-  return safeChunks
-    .filter((chunk) => chunk.trim().length > 0)
+  return rawChunks
+    .map((chunk) => chunk.trim())
+    .filter((chunk) => chunk.length > 0)
     .map((chunk, index) => ({
       text: chunk,
       chunk_id: index,

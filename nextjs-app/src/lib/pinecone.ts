@@ -18,11 +18,6 @@ const INDEX_HOST = process.env.PINECONE_INDEX_HOST;
 const NAMESPACE = process.env.PINECONE_NAMESPACE || 'default';
 const EMBEDDING_MODEL = process.env.PINECONE_EMBEDDING_MODEL || 'multilingual-e5-large';
 
-// multilingual-e5-large: 96-token hard limit.
-// At worst-case tokenization (~1-2 chars/token for dense text), 90 chars
-// guarantees we stay safely under 96 tokens for both chunks and queries.
-const MAX_INPUT_CHARS = 90;
-
 function getIndex() {
   const pc = getPineconeClient();
   return INDEX_HOST ? pc.index(INDEX_NAME, INDEX_HOST) : pc.index(INDEX_NAME);
@@ -30,36 +25,37 @@ function getIndex() {
 
 /**
  * Generate embeddings using Pinecone's native hosted inference.
- * No external OpenAI embedding credits needed!
+ * Pinecone inference API has a limit of at most 96 inputs (strings) per request.
+ * We batch the inputs in slices <= 96 so any number of document chunks can be embedded.
  */
 export async function embedTexts(texts: string[]): Promise<number[][]> {
   if (texts.length === 0) return [];
   const pc = getPineconeClient();
 
-  // Hard-truncate each text to MAX_INPUT_CHARS to guarantee the model's
-  // token limit is never exceeded, regardless of content density.
-  const safeTexts = texts.map((t) => t.slice(0, MAX_INPUT_CHARS));
+  const BATCH_SIZE = 96;
+  const allEmbeddings: number[][] = [];
 
-  const response: any = await pc.inference.embed({
-    model: EMBEDDING_MODEL,
-    inputs: safeTexts,
-    parameters: { inputType: 'passage', truncate: 'END' },
-  });
+  for (let i = 0; i < texts.length; i += BATCH_SIZE) {
+    const batch = texts.slice(i, i + BATCH_SIZE);
+    const response: any = await pc.inference.embed({
+      model: EMBEDDING_MODEL,
+      inputs: batch,
+      parameters: { inputType: 'passage', truncate: 'END' },
+    });
 
-  const items = response.data || response;
-  return items.map((item: any) => item.values as number[]);
+    const items = response.data || response;
+    allEmbeddings.push(...items.map((item: any) => item.values as number[]));
+  }
+
+  return allEmbeddings;
 }
 
 export async function embedQuery(query: string): Promise<number[]> {
   const pc = getPineconeClient();
 
-  // Truncate query to MAX_INPUT_CHARS to avoid token-limit errors.
-  // For search queries this is fine — only the first ~90 chars are embedded.
-  const safeQuery = query.slice(0, MAX_INPUT_CHARS);
-
   const response: any = await pc.inference.embed({
     model: EMBEDDING_MODEL,
-    inputs: [safeQuery],
+    inputs: [query],
     parameters: { inputType: 'query', truncate: 'END' },
   });
 

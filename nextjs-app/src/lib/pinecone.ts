@@ -18,6 +18,11 @@ const INDEX_HOST = process.env.PINECONE_INDEX_HOST;
 const NAMESPACE = process.env.PINECONE_NAMESPACE || 'default';
 const EMBEDDING_MODEL = process.env.PINECONE_EMBEDDING_MODEL || 'multilingual-e5-large';
 
+// multilingual-e5-large: 96-token hard limit.
+// At worst-case tokenization (~1-2 chars/token for dense text), 90 chars
+// guarantees we stay safely under 96 tokens for both chunks and queries.
+const MAX_INPUT_CHARS = 90;
+
 function getIndex() {
   const pc = getPineconeClient();
   return INDEX_HOST ? pc.index(INDEX_NAME, INDEX_HOST) : pc.index(INDEX_NAME);
@@ -31,10 +36,13 @@ export async function embedTexts(texts: string[]): Promise<number[][]> {
   if (texts.length === 0) return [];
   const pc = getPineconeClient();
 
-  // Pinecone Inference embed API takes a single options object in TypeScript SDK
+  // Hard-truncate each text to MAX_INPUT_CHARS to guarantee the model's
+  // token limit is never exceeded, regardless of content density.
+  const safeTexts = texts.map((t) => t.slice(0, MAX_INPUT_CHARS));
+
   const response: any = await pc.inference.embed({
     model: EMBEDDING_MODEL,
-    inputs: texts,
+    inputs: safeTexts,
     parameters: { inputType: 'passage', truncate: 'END' },
   });
 
@@ -45,9 +53,13 @@ export async function embedTexts(texts: string[]): Promise<number[][]> {
 export async function embedQuery(query: string): Promise<number[]> {
   const pc = getPineconeClient();
 
+  // Truncate query to MAX_INPUT_CHARS to avoid token-limit errors.
+  // For search queries this is fine — only the first ~90 chars are embedded.
+  const safeQuery = query.slice(0, MAX_INPUT_CHARS);
+
   const response: any = await pc.inference.embed({
     model: EMBEDDING_MODEL,
-    inputs: [query],
+    inputs: [safeQuery],
     parameters: { inputType: 'query', truncate: 'END' },
   });
 

@@ -16,10 +16,12 @@ export interface ChunkerOptions {
   separators?: string[];
 }
 
-// multilingual-e5-large has a hard 96-token (~300 char) input limit.
-// Keep chunks at <=200 chars so even token-dense text stays within bounds.
-// MAX_CHARS is the absolute hard cap applied as a final safety net.
-const MAX_CHARS = 280;
+// multilingual-e5-large limit: 96 TOKENS (not characters).
+// The XLM-RoBERTa tokenizer can produce 1 token per 1-2 chars for
+// dense/technical/non-English text. To guarantee < 96 tokens even
+// in the worst case, we cap chunks at 100 characters.
+// MAX_CHARS is a hard absolute cap applied as a final safety net.
+const MAX_CHARS = 100;
 
 /**
  * Hard-slice a string into pieces of at most `size` characters.
@@ -36,8 +38,8 @@ function hardSlice(text: string, size: number): string[] {
 
 export function splitText(
   text: string,
-  chunkSize = 200,
-  chunkOverlap = 30,
+  chunkSize = 80,
+  chunkOverlap = 15,
   separators = ['\n\n', '\n', '. ', ' ']
 ): string[] {
   if (text.length <= chunkSize) {
@@ -128,15 +130,14 @@ export function chunkDocument(
   metadata: ChunkMetadata,
   options?: ChunkerOptions
 ): TextChunk[] {
-  const chunkSize = options?.chunkSize ?? 200;
-  const chunkOverlap = options?.chunkOverlap ?? 30;
+  const chunkSize = options?.chunkSize ?? 80;
+  const chunkOverlap = options?.chunkOverlap ?? 15;
   const separators = options?.separators ?? ['\n\n', '\n', '. ', ' '];
 
   const rawChunks = splitText(text, chunkSize, chunkOverlap, separators);
 
-  // Final safety pass: hard-truncate any chunk that somehow exceeds the
-  // model's character limit. This is an absolute guarantee regardless of
-  // input structure (e.g. dense PDFs with no whitespace separators).
+  // Final safety pass: hard-truncate any chunk that somehow exceeds MAX_CHARS.
+  // This is an absolute guarantee regardless of input structure.
   const safeChunks: string[] = [];
   for (const chunk of rawChunks) {
     if (chunk.length > MAX_CHARS) {

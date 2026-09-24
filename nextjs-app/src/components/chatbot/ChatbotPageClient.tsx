@@ -27,7 +27,7 @@ interface UploadedDoc {
 
 type UploadStatus =
   | { type: 'idle' }
-  | { type: 'uploading'; progress: string }
+  | { type: 'uploading'; progress: string; percent: number }
   | { type: 'success'; chunks: number; name: string }
   | { type: 'error'; message: string };
 
@@ -58,55 +58,74 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
     }
   }, [input]);
 
-  const UPLOAD_STEPS = [
-    'Uploading file...',
-    'Extracting text...',
-    'Chunking document...',
-    'Generating embeddings...',
-    'Storing in knowledge base...',
-  ];
+  const CHUNK_SIZE = 3.5 * 1024 * 1024; // 3.5 MB — safely under Vercel's 4.5 MB limit
 
   const handleUpload = async () => {
     if (!file) return;
 
-    let stepIdx = 0;
-    setUploadStatus({ type: 'uploading', progress: UPLOAD_STEPS[0] });
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    const uploadId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
-    const stepTimer = setInterval(() => {
-      stepIdx = Math.min(stepIdx + 1, UPLOAD_STEPS.length - 1);
-      setUploadStatus({ type: 'uploading', progress: UPLOAD_STEPS[stepIdx] });
-    }, 1200);
-
-    const formData = new FormData();
-    formData.append('file', file);
+    setUploadStatus({ type: 'uploading', progress: 'Uploading...', percent: 0 });
 
     try {
-      const res = await fetch(`/api/chatbots/${chatbot.uuid}/documents`, {
-        method: 'POST',
-        body: formData,
-      });
+      for (let i = 0; i < totalChunks; i++) {
+        const start = i * CHUNK_SIZE;
+        const end = Math.min(start + CHUNK_SIZE, file.size);
+        const chunkBlob = file.slice(start, end);
 
-      const data = await res.json();
-      clearInterval(stepTimer);
+        const formData = new FormData();
 
-      if (!res.ok) throw new Error(data.error || 'Upload failed');
+        if (totalChunks === 1) {
+          // Single-shot path for small files
+          formData.append('file', chunkBlob, file.name);
+        } else {
+          // Chunked path for large files
+          formData.append('chunk', chunkBlob, file.name);
+          formData.append('uploadId', uploadId);
+          formData.append('chunkIndex', String(i));
+          formData.append('totalChunks', String(totalChunks));
+          formData.append('fileName', file.name);
+        }
 
-      setUploadedDocs((prev) => [
-        ...prev,
-        {
-          name: file.name,
-          chunks: data.chunks_processed || 0,
-          uploadedAt: new Date().toLocaleTimeString(),
-        },
-      ]);
-      setUploadStatus({ type: 'success', chunks: data.chunks_processed || 0, name: file.name });
-      setFile(null);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+        const percent = Math.round(((i + 1) / totalChunks) * 100);
+        const isLastChunk = i === totalChunks - 1;
+
+        const progressLabel = isLastChunk
+          ? 'Processing document...'
+          : `Uploading chunk ${i + 1} of ${totalChunks}...`;
+
+        setUploadStatus({ type: 'uploading', progress: progressLabel, percent });
+
+        const res = await fetch(`/api/chatbots/${chatbot.uuid}/documents`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error || 'Upload failed');
+
+        // For chunked uploads, only the last chunk returns the final result
+        if (isLastChunk || totalChunks === 1) {
+          setUploadedDocs((prev) => [
+            ...prev,
+            {
+              name: file.name,
+              chunks: data.chunks_processed || 0,
+              uploadedAt: new Date().toLocaleTimeString(),
+            },
+          ]);
+          setUploadStatus({ type: 'success', chunks: data.chunks_processed || 0, name: file.name });
+          setFile(null);
+          if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+      }
     } catch (err: any) {
-      clearInterval(stepTimer);
       setUploadStatus({ type: 'error', message: err.message });
     }
   };
+
 
   const handleSend = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -233,7 +252,9 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
                 <div className="text-2xl mb-1">📄</div>
                 <p className="text-xs font-medium text-indigo-300 truncate">{file.name}</p>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  {(file.size / 1024).toFixed(1)} KB
+                  {file.size >= 1024 * 1024
+                    ? `${(file.size / (1024 * 1024)).toFixed(1)} MB`
+                    : `${(file.size / 1024).toFixed(1)} KB`}
                 </p>
               </>
             ) : (
@@ -273,13 +294,20 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
 
           {/* STATUS MESSAGES */}
           {uploadStatus.type === 'uploading' && (
-            <div className="alert-info animate-fade-in text-xs">
+            <div className="alert-info animate-fade-in text-xs space-y-2">
               <div className="flex items-center gap-2">
                 <svg className="w-3 h-3 animate-spin flex-shrink-0" viewBox="0 0 24 24" fill="none">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
-                {uploadStatus.progress}
+                <span className="flex-1">{uploadStatus.progress}</span>
+                <span className="font-mono text-indigo-300">{uploadStatus.percent}%</span>
+              </div>
+              <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadStatus.percent}%` }}
+                />
               </div>
             </div>
           )}

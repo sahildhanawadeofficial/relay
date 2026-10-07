@@ -180,8 +180,8 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
   return (
     <div className="flex flex-col h-[calc(100vh-69px)]">
       {/* ─────────── TAB BAR ─────────── */}
-      <div className="flex-shrink-0 border-b border-white/5 bg-[rgba(5,5,15,0.6)] px-6">
-        <div className="flex gap-6">
+      <div className="flex-shrink-0 border-b border-line bg-panel px-6">
+        <div className="flex gap-1 sm:gap-6">
           {(
             [
               { id: 'chat', label: '💬 Chat' },
@@ -191,10 +191,10 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`py-3 px-2 sm:px-0 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === tab.id
-                  ? 'text-white border-indigo-500'
-                  : 'text-slate-500 border-transparent hover:text-slate-300'
+                  ? 'text-ink border-indigo-500'
+                  : 'text-faint border-transparent hover:text-ink'
               }`}
             >
               {tab.label}
@@ -221,18 +221,18 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
       ) : (
     <div className="flex flex-1 min-h-0">
       {/* ─────────── SIDEBAR ─────────── */}
-      <aside className="w-72 xl:w-80 flex-shrink-0 border-r border-white/5 flex flex-col bg-[rgba(5,5,15,0.6)]">
+      <aside className="w-72 xl:w-80 flex-shrink-0 border-r border-line flex flex-col bg-panel">
         {/* SIDEBAR HEADER */}
-        <div className="px-5 py-4 border-b border-white/5">
-          <h2 className="text-sm font-semibold text-white">Knowledge Base</h2>
-          <p className="text-xs text-slate-500 mt-0.5">Upload documents to train this chatbot</p>
+        <div className="px-5 py-4 border-b border-line">
+          <h2 className="text-sm font-semibold text-ink">Knowledge Base</h2>
+          <p className="text-xs text-faint mt-0.5">Upload documents to train this chatbot</p>
         </div>
 
         {/* UPLOAD AREA */}
-        <div className="p-4 border-b border-white/5 space-y-3">
+        <div className="p-4 border-b border-line space-y-3">
           <div
             className={`rounded-xl border-2 border-dashed transition-colors p-4 text-center cursor-pointer ${
-              file ? 'border-indigo-500/50 bg-indigo-500/5' : 'border-white/10 hover:border-indigo-500/30 hover:bg-white/3'
+              file ? 'border-indigo-500/50 bg-indigo-500/5' : 'border-line hover:border-indigo-500/30 hover:bg-fill'
             }`}
             onClick={() => fileInputRef.current?.click()}
           >
@@ -250,8 +250,8 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
             {file ? (
               <>
                 <div className="text-2xl mb-1">📄</div>
-                <p className="text-xs font-medium text-indigo-300 truncate">{file.name}</p>
-                <p className="text-xs text-slate-500 mt-0.5">
+                <p className="text-xs font-medium text-brand truncate">{file.name}</p>
+                <p className="text-xs text-faint mt-0.5">
                   {file.size >= 1024 * 1024
                     ? `${(file.size / (1024 * 1024)).toFixed(1)} MB`
                     : `${(file.size / 1024).toFixed(1)} KB`}
@@ -260,10 +260,10 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
             ) : (
               <>
                 <div className="text-2xl mb-1">⬆️</div>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-mute">
                   Click to select a file
                 </p>
-                <p className="text-xs text-slate-600 mt-0.5">PDF, DOCX, TXT</p>
+                <p className="text-xs text-faint mt-0.5">PDF, DOCX, TXT</p>
               </>
             )}
           </div>
@@ -301,9 +301,9 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
                 <span className="flex-1">{uploadStatus.progress}</span>
-                <span className="font-mono text-indigo-300">{uploadStatus.percent}%</span>
+                <span className="font-mono text-brand">{uploadStatus.percent}%</span>
               </div>
-              <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+              <div className="w-full bg-fill rounded-full h-1.5 overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full transition-all duration-300"
                   style={{ width: `${uploadStatus.percent}%` }}
@@ -325,13 +325,13 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
 
         {/* DOCUMENT LIST */}
         <div className="flex-1 overflow-y-auto px-4 py-3">
-          <p className="text-xs font-medium text-slate-500 mb-3 uppercase tracking-wider">
+          <p className="text-xs font-medium text-faint mb-3 uppercase tracking-wider">
             Uploaded Documents
           </p>
           {uploadedDocs.length === 0 ? (
             <div className="text-center py-8">
               <div className="text-3xl mb-2 opacity-30">📭</div>
-              <p className="text-xs text-slate-600">No documents yet</p>
+              <p className="text-xs text-faint">No documents yet</p>
             </div>
           ) : (
             <ul className="space-y-2">
@@ -342,8 +342,8 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
                       {doc.name.endsWith('.pdf') ? '📕' : doc.name.endsWith('.docx') ? '📘' : '📄'}
                     </span>
                     <div className="min-w-0">
-                      <p className="text-xs font-medium text-slate-300 truncate">{doc.name}</p>
-                      <p className="text-xs text-slate-600 mt-0.5">
+                      <p className="text-xs font-medium text-ink truncate">{doc.name}</p>
+                      <p className="text-xs text-faint mt-0.5">
                         {doc.chunks} chunks · {doc.uploadedAt}
                       </p>
                     </div>
@@ -364,8 +364,8 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-3xl mb-4 shadow-lg glow-brand">
                 🧠
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Ask your knowledge base</h3>
-              <p className="text-slate-400 text-sm max-w-md leading-relaxed">
+              <h3 className="text-lg font-semibold text-ink mb-2">Ask your knowledge base</h3>
+              <p className="text-mute text-sm max-w-md leading-relaxed">
                 Upload documents using the sidebar, then ask questions. The AI will search
                 your documents and provide answers with source citations.
               </p>
@@ -378,7 +378,7 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
                   <button
                     key={suggestion}
                     onClick={() => setInput(suggestion)}
-                    className="text-xs px-3 py-1.5 glass-card rounded-full text-slate-400 hover:text-white transition-colors"
+                    className="text-xs px-3 py-1.5 glass-card rounded-full text-mute hover:text-ink transition-colors"
                   >
                     {suggestion}
                   </button>
@@ -402,15 +402,15 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
                 className={`max-w-[75%] rounded-2xl px-4 py-3 ${
                   msg.role === 'user'
                     ? 'bg-gradient-to-br from-indigo-600 to-violet-600 text-white rounded-tr-sm shadow-lg'
-                    : 'glass-card text-slate-200 rounded-tl-sm'
+                    : 'glass-card text-ink rounded-tl-sm'
                 }`}
               >
                 <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
 
                 {/* SOURCE CITATIONS */}
                 {msg.sources && msg.sources.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-white/10 space-y-1.5">
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Sources</p>
+                  <div className="mt-3 pt-3 border-t border-line space-y-1.5">
+                    <p className="text-xs font-semibold text-mute uppercase tracking-wide">Sources</p>
                     <div className="flex flex-wrap gap-1.5">
                       {msg.sources.map((src, i) => (
                         <span
@@ -419,7 +419,7 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
                           title={`Score: ${src.score.toFixed(3)}`}
                         >
                           📄 {src.document_name}
-                          <span className="text-indigo-300 opacity-70">
+                          <span className="text-brand opacity-70">
                             ({Math.round(src.score * 100)}%)
                           </span>
                         </span>
@@ -457,7 +457,7 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
         </div>
 
         {/* INPUT BAR */}
-        <div className="border-t border-white/5 bg-[rgba(5,5,15,0.6)] p-4">
+        <div className="border-t border-line bg-panel p-4">
           <form onSubmit={handleSend} className="flex gap-3 max-w-3xl mx-auto items-end">
             <div className="flex-1 glass-card rounded-2xl overflow-hidden flex items-end">
               <textarea
@@ -467,7 +467,7 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask a question about your documents... (Enter to send)"
-                className="flex-1 bg-transparent text-slate-200 placeholder-slate-600 text-sm px-4 py-3 outline-none resize-none min-h-[44px] max-h-[160px]"
+                className="flex-1 bg-transparent text-ink placeholder:text-faint text-sm px-4 py-3 outline-none resize-none min-h-[44px] max-h-[160px]"
                 disabled={isSearching}
                 rows={1}
               />
@@ -484,7 +484,7 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
               </svg>
             </button>
           </form>
-          <p className="text-center text-xs text-slate-700 mt-2">
+          <p className="text-center text-xs text-faint mt-2">
             Shift+Enter for new line · Enter to send
           </p>
         </div>

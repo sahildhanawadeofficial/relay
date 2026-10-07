@@ -3,7 +3,8 @@ import { redirect } from 'next/navigation';
 import { dbConnect } from '@/lib/db';
 import { Chatbot } from '@/models/Chatbot';
 import DashboardClient from '@/components/dashboard/DashboardClient';
-import Link from 'next/link';
+import { AppHeader } from '@/components/layout/AppHeader';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,61 +29,49 @@ export default async function DashboardPage() {
   }));
 
   return (
-    <div className="min-h-screen bg-mesh">
-      {/* TOP NAV */}
-      <nav className="sticky top-0 z-30 border-b border-white/5 bg-[rgba(5,5,15,0.85)] backdrop-blur-xl px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white font-bold text-sm shadow-lg">
-              R
-            </div>
-            <span className="font-bold text-white tracking-tight">Relay</span>
-          </Link>
-
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-white text-xs font-semibold">
-                {session.user.name?.charAt(0).toUpperCase() ?? 'U'}
-              </div>
-              <span className="text-sm text-slate-400 hidden sm:block">{session.user.email}</span>
-            </div>
-
-            <form action="/api/auth/signout" method="POST">
-              <button
-                id="signout-btn"
-                className="btn-ghost text-xs py-1.5 px-3"
-              >
-                Sign Out
-              </button>
-            </form>
+    <div className="min-h-screen bg-mesh page-grid">
+      <AppHeader>
+        <ThemeToggle compact />
+        <div className="hidden sm:flex items-center gap-2 pl-1 border-l border-line ml-1">
+          <div className="w-8 h-8 rounded-full brand-logo-mark flex items-center justify-center text-white text-xs font-semibold">
+            {session.user.name?.charAt(0).toUpperCase() ?? 'U'}
           </div>
+          <span className="text-sm text-mute max-w-[200px] truncate">{session.user.email}</span>
         </div>
-      </nav>
+        <form action="/api/auth/signout" method="POST">
+          <button id="signout-btn" className="btn-ghost text-xs py-1.5 px-3">
+            Sign Out
+          </button>
+        </form>
+      </AppHeader>
 
       {/* PAGE CONTENT */}
       <main className="max-w-6xl mx-auto px-6 py-10">
         {/* HEADER */}
         <div className="mb-10 animate-fade-in-up">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-2">
-            Your Chatbots
+          <p className="section-label mb-2">Dashboard</p>
+          <h1 className="page-heading text-3xl md:text-4xl font-extrabold text-ink mb-2">
+            {session.user.name ? `Hi, ${session.user.name.split(' ')[0]}` : 'Your Chatbots'}
           </h1>
-          <p className="text-slate-400">
-            Create a chatbot, upload documents, and start getting AI-powered answers.
+          <p className="text-mute max-w-xl">
+            Create a chatbot, upload documents, and start getting grounded answers with source citations.
           </p>
         </div>
 
         {/* STATS ROW */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 animate-fade-in-up stagger">
           {[
-            { label: 'Chatbots', value: serializedChatbots.length, icon: '🤖' },
-            { label: 'Status', value: 'Active', icon: '✅' },
-            { label: 'LLM', value: 'GPT-4o mini', icon: '🧠' },
-            { label: 'Embeddings', value: 'OpenAI', icon: '⚡' },
+            { label: 'Chatbots', value: serializedChatbots.length, icon: '🤖', tone: 'indigo' },
+            { label: 'Status', value: 'Active', icon: '✅', tone: 'emerald' },
+            { label: 'LLM', value: 'GPT-4o mini', icon: '🧠', tone: 'violet' },
+            { label: 'Embeddings', value: 'OpenAI', icon: '⚡', tone: 'amber' },
           ].map((stat) => (
-            <div key={stat.label} className="glass-card p-4 animate-fade-in-up">
-              <div className="text-2xl mb-2">{stat.icon}</div>
-              <div className="text-xl font-bold text-white">{stat.value}</div>
-              <div className="text-xs text-slate-500 mt-0.5">{stat.label}</div>
+            <div key={stat.label} className={`stat-tile stat-tile--${stat.tone} animate-fade-in-up`}>
+              <div className={`stat-tile-icon stat-tile-icon--${stat.tone}`} aria-hidden>
+                {stat.icon}
+              </div>
+              <div className="text-xl font-bold text-ink tracking-tight">{stat.value}</div>
+              <div className="text-xs text-mute mt-1 uppercase tracking-wide font-semibold">{stat.label}</div>
             </div>
           ))}
         </div>

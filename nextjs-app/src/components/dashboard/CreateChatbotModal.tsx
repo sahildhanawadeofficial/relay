@@ -51,19 +51,19 @@ export default function CreateChatbotModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in"
+      className="fixed inset-0 bg-black/55 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-fade-in"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="glass-card-solid w-full max-w-md overflow-hidden animate-fade-in-up shadow-2xl">
         {/* HEADER */}
-        <div className="px-6 py-5 border-b border-white/8 flex items-center justify-between">
+        <div className="px-6 py-5 border-b border-line flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-white">New Chatbot</h2>
-            <p className="text-sm text-slate-400 mt-0.5">A UUID will be generated automatically</p>
+            <h2 className="text-lg font-semibold text-ink">New Chatbot</h2>
+            <p className="text-sm text-mute mt-0.5">A UUID will be generated automatically</p>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/8 transition-colors"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-mute hover:text-ink hover:bg-fill transition-colors"
             aria-label="Close modal"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -81,7 +81,7 @@ export default function CreateChatbotModal({
           )}
 
           <div className="mb-6">
-            <label htmlFor="chatbot-name" className="block text-sm font-medium text-slate-300 mb-2">
+            <label htmlFor="chatbot-name" className="block text-sm font-medium text-ink mb-2">
               Chatbot Name
             </label>
             <input
@@ -95,7 +95,7 @@ export default function CreateChatbotModal({
               maxLength={100}
               autoFocus
             />
-            <p className="text-xs text-slate-500 mt-2">
+            <p className="text-xs text-faint mt-2">
               {name.length}/100 characters
             </p>
           </div>
@@ -106,8 +106,8 @@ export default function CreateChatbotModal({
               {name ? name.charAt(0).toUpperCase() : '?'}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-medium text-white truncate">{name || 'Chatbot Name'}</p>
-              <p className="text-xs text-slate-500 font-mono">UUID auto-generated on create</p>
+              <p className="text-sm font-medium text-ink truncate">{name || 'Chatbot Name'}</p>
+              <p className="text-xs text-faint font-mono">UUID auto-generated on create</p>
             </div>
           </div>
 

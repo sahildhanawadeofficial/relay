@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import './globals.css';
 import { Providers } from '@/components/Providers';
 
@@ -14,10 +15,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" data-theme="black" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <Script id="relay-theme" strategy="beforeInteractive">
+          {`(function(){try{var t=localStorage.getItem('relay-theme');if(t!=='white'&&t!=='black')t='black';document.documentElement.dataset.theme=t;}catch(e){}})();`}
+        </Script>
       </head>
       <body className="antialiased min-h-screen bg-mesh" suppressHydrationWarning>
         <Providers>

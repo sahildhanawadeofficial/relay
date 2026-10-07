@@ -120,8 +120,8 @@ init({
       {/* API KEY */}
       <section className="glass-card p-5 space-y-4">
         <div>
-          <h3 className="text-sm font-semibold text-white">Public API Key</h3>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <h3 className="text-sm font-semibold text-ink">Public API Key</h3>
+          <p className="text-xs text-faint mt-0.5">
             Used by the embeddable widget to authenticate requests from your customer&apos;s website. This key is
             meant to run in client-side JS &mdash; access is scoped to chat only and restricted by allowed origins
             below.
@@ -152,7 +152,7 @@ init({
           </button>
         )}
         {apiKey && (
-          <p className="text-xs text-slate-600">
+          <p className="text-xs text-faint">
             ⚠️ Regenerating invalidates the old key immediately &mdash; update it everywhere it&apos;s embedded.
           </p>
         )}
@@ -161,11 +161,11 @@ init({
       {/* ALLOWED ORIGINS */}
       <section className="glass-card p-5 space-y-3">
         <div>
-          <h3 className="text-sm font-semibold text-white">Allowed Origins</h3>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <h3 className="text-sm font-semibold text-ink">Allowed Origins</h3>
+          <p className="text-xs text-faint mt-0.5">
             Comma-separated list of websites allowed to use this key (e.g.{' '}
-            <code className="text-slate-400">https://example.com</code>). Defaults to{' '}
-            <code className="text-slate-400">*</code> (any website) so the widget works immediately &mdash; lock
+            <code className="text-mute">https://example.com</code>). Defaults to{' '}
+            <code className="text-mute">*</code> (any website) so the widget works immediately &mdash; lock
             this down once you know your customer&apos;s domain.
           </p>
         </div>
@@ -181,8 +181,8 @@ init({
       {/* WIDGET APPEARANCE */}
       <section className="glass-card p-5 space-y-4">
         <div>
-          <h3 className="text-sm font-semibold text-white">Widget Appearance &amp; Behavior</h3>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <h3 className="text-sm font-semibold text-ink">Widget Appearance &amp; Behavior</h3>
+          <p className="text-xs text-faint mt-0.5">
             Configured here on the server &mdash; the embedded widget fetches these automatically, no code changes
             needed on the customer&apos;s site.
           </p>
@@ -190,7 +190,7 @@ init({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="text-xs text-slate-400 block mb-1.5">Icon Position</label>
+            <label className="text-xs text-mute block mb-1.5">Icon Position</label>
             <select
               value={position}
               onChange={(e) => setPosition(e.target.value as WidgetConfig['position'])}
@@ -202,13 +202,13 @@ init({
           </div>
 
           <div>
-            <label className="text-xs text-slate-400 block mb-1.5">Primary Color</label>
+            <label className="text-xs text-mute block mb-1.5">Primary Color</label>
             <div className="flex items-center gap-2">
               <input
                 type="color"
                 value={primaryColor}
                 onChange={(e) => setPrimaryColor(e.target.value)}
-                className="w-10 h-10 rounded-lg border border-white/10 bg-transparent cursor-pointer"
+                className="w-10 h-10 rounded-lg border border-line bg-transparent cursor-pointer"
               />
               <input
                 type="text"
@@ -221,7 +221,7 @@ init({
         </div>
 
         <div>
-          <label className="text-xs text-slate-400 block mb-1.5">Welcome Message</label>
+          <label className="text-xs text-mute block mb-1.5">Welcome Message</label>
           <textarea
             value={welcomeMessage}
             onChange={(e) => setWelcomeMessage(e.target.value)}
@@ -243,8 +243,8 @@ init({
       {/* EMBED SNIPPETS */}
       <section className="glass-card p-5 space-y-5">
         <div>
-          <h3 className="text-sm font-semibold text-white">Embed on your website</h3>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <h3 className="text-sm font-semibold text-ink">Embed on your website</h3>
+          <p className="text-xs text-faint mt-0.5">
             Pick whichever fits your customer&apos;s site &mdash; a plain script tag works anywhere (WordPress, Wix,
             static HTML); the npm package suits React/Vue/bundler-based sites.
           </p>
@@ -252,7 +252,7 @@ init({
 
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Script Tag</p>
+            <p className="text-xs font-medium text-mute uppercase tracking-wide">Script Tag</p>
             <CopyButton text={scriptSnippet} />
           </div>
           <pre className="input-field text-xs font-mono whitespace-pre-wrap overflow-x-auto">{scriptSnippet}</pre>
@@ -260,7 +260,7 @@ init({
 
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">npm Package</p>
+            <p className="text-xs font-medium text-mute uppercase tracking-wide">npm Package</p>
             <CopyButton text={npmSnippet} />
           </div>
           <pre className="input-field text-xs font-mono whitespace-pre-wrap overflow-x-auto">{npmSnippet}</pre>

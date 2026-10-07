@@ -56,9 +56,9 @@ export default function ChatbotCard({ chatbot, onDelete }: ChatbotCardProps) {
   const gradient = gradients[chatbot.name.charCodeAt(0) % gradients.length];
 
   return (
-    <div className="glass-card p-6 flex flex-col group animate-fade-in-up relative overflow-hidden">
+    <div className="glass-card feature-tile p-6 flex flex-col group animate-fade-in-up relative overflow-hidden">
       {/* Gradient accent top bar */}
-      <div className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${gradient} opacity-60 group-hover:opacity-100 transition-opacity`} />
+      <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${gradient} opacity-80 group-hover:opacity-100 transition-opacity`} />
 
       {/* ICON + NAME */}
       <div className="flex items-start gap-3 mb-4">
@@ -66,22 +66,22 @@ export default function ChatbotCard({ chatbot, onDelete }: ChatbotCardProps) {
           {chatbot.name.charAt(0).toUpperCase()}
         </div>
         <div className="min-w-0">
-          <h3 className="font-semibold text-white text-base leading-tight truncate">{chatbot.name}</h3>
-          <p className="text-xs text-slate-500 font-mono mt-0.5">#{shortId}</p>
+          <h3 className="font-semibold text-ink text-base leading-tight truncate">{chatbot.name}</h3>
+          <p className="text-xs text-faint font-mono mt-0.5">#{shortId}</p>
         </div>
       </div>
 
       {/* META */}
       <div className="flex items-center gap-2 mb-5">
         <span className="badge badge-brand">
-          <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
+          <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
           RAG Enabled
         </span>
-        <span className="text-xs text-slate-500">{date}</span>
+        <span className="text-xs text-faint">{date}</span>
       </div>
 
       {/* ACTIONS */}
-      <div className="flex items-center gap-2 mt-auto pt-4 border-t border-white/5">
+      <div className="flex items-center gap-2 mt-auto pt-4 border-t border-line">
         <Link
           href={`/chatbots/${chatbot.uuid}`}
           id={`open-chatbot-${shortId}`}

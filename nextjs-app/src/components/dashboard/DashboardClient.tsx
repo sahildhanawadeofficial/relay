@@ -26,10 +26,15 @@ export default function DashboardClient({ initialChatbots }: { initialChatbots: 
   return (
     <div className="animate-fade-in-up">
       {/* TOOLBAR */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-white">
-          {chatbots.length > 0 ? `${chatbots.length} Chatbot${chatbots.length !== 1 ? 's' : ''}` : 'No Chatbots Yet'}
-        </h2>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+          <p className="section-label mb-1">Library</p>
+          <h2 className="text-lg font-semibold text-ink">
+            {chatbots.length > 0
+              ? `${chatbots.length} Chatbot${chatbots.length !== 1 ? 's' : ''}`
+              : 'No chatbots yet'}
+          </h2>
+        </div>
         <button
           id="create-chatbot-btn"
           onClick={() => setIsModalOpen(true)}
@@ -44,10 +49,10 @@ export default function DashboardClient({ initialChatbots }: { initialChatbots: 
 
       {/* EMPTY STATE */}
       {chatbots.length === 0 ? (
-        <div className="glass-card p-16 text-center">
-          <div className="text-6xl mb-4">🤖</div>
-          <h3 className="text-xl font-semibold text-white mb-2">Create your first chatbot</h3>
-          <p className="text-slate-400 mb-8 max-w-sm mx-auto text-sm leading-relaxed">
+        <div className="empty-state glass-card-static p-14 md:p-16 text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl icon-ring text-3xl mb-5 mx-auto">🤖</div>
+          <h3 className="text-xl font-semibold text-ink mb-2">Create your first chatbot</h3>
+          <p className="text-mute mb-8 max-w-sm mx-auto text-sm leading-relaxed">
             Give it a name, upload your documents, and start asking questions powered by your own knowledge base.
           </p>
           <button

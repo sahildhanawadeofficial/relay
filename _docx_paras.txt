@@ -1,0 +1,408 @@
+0002|Normal|RESEARCH PROJECT
+0003|Normal|ON
+0004|Normal|RELAY: A MULTI-TENANT RETRIEVAL-AUGMENTED GENERATION
+0005|Normal|PLATFORM FOR DOCUMENT-GROUNDED CHATBOTS
+0007|Normal|BY
+0008|Normal|Aaditi Choramle
+0009|Normal|Chitrang Choudhari
+0010|Normal|Pratik Kamble
+0011|Normal|Sahil Dhanavade
+0014|Normal|Under the Guidance of
+0015|Normal|Dr. Swati D. Ghule
+0018|Normal|MASTER OF COMPUTER APPLICATION
+0019|Normal|P.E.S’S MODERN COLLEGE OF ENGINEERING
+0020|Normal|PUNE – 411 005
+0021|Normal|(An Autonomous Institute Affiliated to Savitribai Phule Pune University)
+0022|Normal|2026-27
+0024|Normal|CERTIFICATE
+0025|Normal|Progressive Education Society's
+0026|Normal|Modern College of Engineering
+0027|Normal|(An Autonomous Institute Affiliated to Savitribai Phule Pune University)
+0028|Normal|MCA Department
+0029|Normal|CERTIFICATE
+0030|Normal|This is to certify that AADITI CHORAMLE, CHITRANG CHOUDHARI, PRATIK KAMBLE and SAHIL DHANAVADE of Master in Computer Application have successfully completed the Research Project work titled ‘RELAY: A MULTI-TENANT RETRIEVAL-AUGMENTED GENERATION PLATFORM FOR DOCUMENT-GROUNDED CHATBOTS’ during the academic year 2026-27. This report is submitted as partial fulfillment of the requirement of degree in MCA of Modern College of Engineering.
+0031|Normal|External Examiner: _______________________
+0032|Normal|Prof. Dr. Mrs. K. R. Joshi  Prof. Dr. Shivani A. Budhkar  Dr. Swati D. Ghule
+0033|Normal|Principal          Head of Department      Project Guide
+0034|Normal|ACKNOWLEDGEMENT
+0035|Normal|We take this opportunity to express our sincere gratitude to everyone who supported us during the completion of this research project.
+0036|Normal|We are thankful to Prof. Dr. Mrs. K. R. Joshi, Principal, P.E.S’S Modern College of Engineering, Pune, for providing the academic environment and facilities required to carry out this work.
+0037|Normal|We express our deep sense of gratitude to Prof. Dr. Shivani A. Budhkar, Head of the MCA Department, for her constant encouragement and for creating a research-oriented atmosphere in the department.
+0038|Normal|We are especially indebted to our project guide, Dr. Swati D. Ghule, for valuable guidance, timely suggestions, and continuous support throughout the design, implementation, and documentation of this project. The discussions on retrieval-augmented generation, multi-tenant isolation, and system architecture helped us convert a research idea into a working platform.
+0039|Normal|We also thank the faculty members of the MCA Department for their teaching in software engineering, database systems, and emerging technologies, which formed the foundation of this work. We acknowledge the open-source communities behind Next.js, Auth.js, Pinecone, and OpenRouter, whose platforms made a production-grade RAG system feasible within an academic timeline.
+0040|Normal|Finally, we thank our families and classmates for their patience and moral support during the project period.
+0042|Normal|Sign of students: ____________________
+0043|Normal|Name of students: Aaditi Choramle, Chitrang Choudhari, Pratik Kamble, Sahil Dhanavade
+0044|Normal|Roll no.: ____________________
+0045|Normal|ABSTRACT
+0046|Normal|Large Language Models (LLMs) generate fluent answers but are prone to hallucination and cannot reliably restrict themselves to an organisation’s private documents. Retrieval-Augmented Generation (RAG) addresses this by retrieving relevant text chunks from a knowledge base and conditioning the LLM on that evidence. Existing commercial chatbot builders are closed, costly, and offer limited control over tenant isolation. Typical open-source tutorials are single-tenant prototypes that do not expose a secure public embed API.
+0047|Normal|This project presents Relay, a multi-tenant SaaS platform on which a signed-in owner can create independent chatbots, upload PDF, DOCX, and TXT documents, and obtain grounded answers with source citations. Documents are parsed, split with recursive character chunking (chunk size 800, overlap 150), embedded with Pinecone’s hosted multilingual-e5-large model, and stored in a shared serverless vector index. Isolation is enforced by a server-side metadata filter on chatbot_id, so Chatbot A cannot retrieve Chatbot B’s chunks. Query answering uses the same embedding model with inputType: query, cosine top-k retrieval, and answer synthesis through OpenRouter (primary model Llama 3.3 70B Instruct, with free-tier fallbacks). The dashboard and the public widget share one RAG pipeline. The widget is published as the npm package relay-chat-widget, authenticated by a per-chatbot public API key (pk_live_…) and an origin allow-list.
+0048|Normal|The system is implemented as a single Next.js 15 service with Auth.js (Google OAuth, JWT sessions), MongoDB/Mongoose for users and chatbot configuration, and Jest unit tests for chunking, models, registration, and chatbot APIs. It is deployed at https://relayy-dun.vercel.app. The work demonstrates that a complete multi-tenant, document-grounded chatbot product can be built without a separate Python embedding microservice, while preserving tenant isolation and citation-backed answers.
+0049|Normal|Keywords: Retrieval-Augmented Generation, Multi-tenant SaaS, Vector search, Pinecone, Large Language Models, Embeddable chatbot widget, Next.js
+0050|Normal|CONTENTS
+0052|Normal|LIST OF ABBREVIATIONS
+0054|Normal|LIST OF FIGURES
+0056|Normal|LIST OF TABLES
+0059|Normal|1. INTRODUCTION AND AIMS / MOTIVATION AND OBJECTIVES
+0060|Normal|1.1 Introduction
+0061|Normal|Organisations accumulate knowledge in PDFs, policy manuals, product guides, and internal notes. Employees and website visitors repeatedly ask questions whose answers already exist in those files, yet finding the right paragraph is slow. Conventional keyword search fails when the user paraphrases. Fine-tuning a large language model on private data is expensive, slow to update, and still does not prove where an answer came from.
+0062|Normal|Retrieval-Augmented Generation (RAG), introduced by Lewis et al. [1], combines a parametric generator (an LLM) with a non-parametric memory (a vector index of documents). At question time the system embeds the query, retrieves the most similar text chunks, and asks the LLM to answer using only that context. This reduces hallucination, supports citations, and allows the knowledge base to be updated by uploading a new file rather than retraining a model.
+0063|Normal|Relay applies this idea as a multi-tenant product. Each signed-in user may own many chatbots. Each chatbot has its own documents, API key, origin allow-list, and widget appearance. Website visitors never see the owner’s dashboard; they talk to a floating chat button published as relay-chat-widget. Both paths call the same server-side answer function so that behaviour is consistent.
+0064|Normal|The platform is a single Next.js 15 application. MongoDB stores users and chatbot configuration. Pinecone stores embeddings and performs hosted inference, which removes the need for a Python embedding service. OpenRouter supplies LLM completions, including free-tier models suitable for academic deployment.
+0065|Normal|1.2 Motivation
+0066|Normal|The motivation for this research project is both practical and academic.
+0067|Normal|Practical motivation. Small businesses, college departments, and independent developers need a document chatbot they can embed on a site without hiring an ML team. Commercial tools such as Chatbase or CustomGPT charge subscription fees and hide retrieval internals. Building a one-off LangChain notebook does not yield login, tenancy, CORS, or an npm widget.
+0068|Normal|Academic motivation. RAG literature focuses on retrieval quality and generation faithfulness [1][3]. Multi-tenant software engineering literature focuses on isolation of compute and data [12]. Few teaching-scale systems show how both concerns meet in one codebase: a shared vector index, a metadata filter that must never be omitted, a public key that must not grant write access, and a widget that must obey CORS. Implementing and documenting that combination is a useful research-oriented engineering contribution for an MCA dissertation.
+0069|Normal|Cost motivation. Generating embeddings through a separate OpenAI embedding endpoint consumes paid tokens. Pinecone hosted inference (pc.inference.embed) produces vectors with the same model that the index expects, in batches of at most 96 inputs, without a second vendor for embeddings. LLM answers go through OpenRouter so that free-tier models can be used with automatic fallbacks when a model is rate-limited.
+0070|Normal|1.3 Aim
+0071|Normal|To design, implement, and deploy a production-ready multi-tenant platform on which users can create isolated, document-grounded AI chatbots and embed them on third-party websites, with answers generated by retrieval-augmented generation and accompanied by source citations.
+0072|Normal|1.4 Objectives
+0073|Normal|1.  To study RAG, dense retrieval, multi-tenant SaaS isolation, and related chatbot platforms, and to identify the research gap this work addresses.
+0074|Normal|2.  To design a single-service architecture in which authentication, document ingestion, vector search, LLM answering, and the public widget API live in one Next.js application.
+0075|Normal|3.  To implement secure owner authentication using Auth.js v5 with Google OAuth and JWT sessions, and to authorise every dashboard API by matching chatbot.userId to the session user.
+0076|Normal|4.  To implement document ingestion for PDF, DOCX, and TXT: text extraction, recursive chunking with overlap, hosted embedding, and upsert into Pinecone with chatbot_id metadata.
+0077|Normal|5.  To implement query-time RAG: query embedding, top-k cosine search filtered by chatbot_id, and grounded generation via OpenRouter with fallback models and a raw-context fallback if the LLM is unavailable.
+0078|Normal|6.  To expose a public, CORS-enabled chat API authenticated by a per-chatbot pk_live_ key and an origin allow-list, without revealing internal chatbot UUIDs to the customer site.
+0079|Normal|7.  To publish an embeddable widget (relay-chat-widget) that loads appearance from the dashboard and sends questions to the public API.
+0080|Normal|8.  To verify isolation, chunking, models, and API behaviour with automated tests, and to deploy the system for demonstration.
+0081|Normal|1.5 Scope
+0082|Normal|In scope
+0083|Normal|•  Owner sign-in, chatbot CRUD, document upload (PDF / DOCX / TXT), dashboard chat with citations.
+0084|Normal|•  Multi-tenant isolation on a shared Pinecone index via metadata filters.
+0085|Normal|•  Public widget API and npm/script-tag embed.
+0086|Normal|•  Widget appearance (position, colour, welcome message) stored per chatbot.
+0087|Normal|•  Chunked upload for files larger than approximately 3.5 MB (Vercel body-size limit).
+0088|Normal|Out of scope
+0089|Normal|•  Fine-tuning or training of embedding/LLM weights.
+0090|Normal|•  Conversation memory across sessions, user analytics dashboards, and billing.
+0091|Normal|•  Image, table, or OCR-heavy PDF understanding.
+0092|Normal|•  Per-tenant physical Pinecone indexes (logical isolation is used instead).
+0093|Normal|2. LITERATURE SURVEY
+0094|Normal|2.1 Transformer language models and the hallucination problem
+0095|Normal|Vaswani et al. [6] introduced the Transformer, which is the backbone of modern LLMs. Devlin et al. [9] showed that bidirectional pre-training (BERT) yields strong text representations. Subsequent decoder-only models such as Llama 2 [10] and Llama 3 [11] generate fluent open-ended text. OpenAI’s GPT-4 technical report [19] documents strong general capability but does not solve the problem of answering only from a private corpus.
+0096|Normal|Ji et al. [4] survey hallucination in natural language generation: models produce plausible statements that are not supported by source text. For enterprise assistants this is unacceptable. A leave-policy bot that invents extra holidays is worse than a bot that admits it does not know.
+0097|Normal|2.2 Dense retrieval
+0098|Normal|Sparse lexical methods (BM25) fail when query vocabulary differs from document vocabulary. Karpukhin et al. [2] proposed Dense Passage Retrieval (DPR): questions and passages are encoded into the same vector space and nearest neighbours are retrieved. Reimers and Gurevych [7] (Sentence-BERT) made semantically meaningful sentence embeddings practical. Johnson et al. [8] demonstrated billion-scale approximate nearest neighbour search (FAISS), which industrial vector databases extend.
+0099|Normal|Wang et al. [5] released multilingual E5 embeddings. The multilingual-e5-large model used in this project has 24 layers and 1024-dimensional vectors, supports about 100 languages, and distinguishes passage vs query input types. Relay therefore embeds documents with inputType: passage and questions with inputType: query, matching the model’s training.
+0100|Normal|2.3 Retrieval-Augmented Generation
+0101|Normal|Lewis et al. [1] defined RAG as a generator conditioned on passages retrieved from a non-parametric index (originally Wikipedia). The parametric memory can stay frozen while the index is updated. Izacard and Grave [21] (Fusion-in-Decoder) showed that concatenating many retrieved passages into a seq2seq encoder improves open-domain QA. Gao et al. [3] survey RAG for LLMs and distinguish Naive RAG (index–retrieve–generate), Advanced RAG (pre/post retrieval optimisation), and Modular RAG. Relay implements a production Naive/Advanced hybrid: recursive chunking and overlap (pre-retrieval), metadata filtering and top-k (retrieval), and a strict system prompt plus reasoning-leak detection (post-generation).
+0102|Normal|Asai et al. [20] (Self-RAG) add reflection tokens so the model can decide when to retrieve. That line of work is more complex than required here; Relay always retrieves for a user question and instructs the LLM to refuse when context is insufficient.
+0103|Normal|2.4 Vector databases and hosted inference
+0104|Normal|Pinecone [13] provides a managed vector index with metadata filters and, more recently, hosted inference so that embedding happens inside the same vendor as storage. This avoids dimension mismatch between a local embedding model and the index. OpenRouter [14] exposes many LLMs behind an OpenAI-compatible HTTP API and supports a models fallback array, which Relay uses when the primary free model is unavailable.
+0105|Normal|2.5 Orchestration frameworks and commercial chatbot builders
+0106|Normal|LangChain [18] popularised RAG chains in Python. Most tutorials wire one folder of files to one bot. They rarely include OAuth, per-tenant API keys, origin allow-lists, or an npm widget. Commercial products (Chatbase, SiteGPT, CustomGPT, Intercom Fin) offer hosted RAG chatbots as a service. They validate market demand but are closed-source, which limits academic inspection of isolation and prompting.
+0107|Normal|2.6 Multi-tenant software architecture
+0108|Normal|Krebs, Momm and Kounev [12] discuss isolation, customisation, and scalability in multi-tenant SaaS. Three isolation levels are common: separate database per tenant, separate schema per tenant, and shared schema with a tenant identifier. Relay uses the third pattern twice:
+0109|Normal|•  MongoDB: Chatbot.userId ties bots to owners; dashboard routes compare this with the JWT session.user.id.
+0110|Normal|•  Pinecone: every vector carries chatbot_id; every query includes filter: { chatbot_id: { $eq: chatbotId } }.
+0111|Normal|A missing filter would be a data-leak bug. The implementation therefore centralises answering in one function (answerChatbotQuery) that always receives an explicit chatbot id from an already-authorised caller.
+0112|Normal|2.7 Web authentication, CORS, and public widgets
+0113|Normal|Auth.js (NextAuth) [15] implements OAuth 2.0 / OpenID Connect for Next.js. Relay uses Google as the identity provider and JWT session strategy so that serverless instances need no shared session store. Fielding’s REST dissertation [22] informs the resource-oriented API design. Browser widgets on other origins require CORS; Relay authenticates the widget with a public API key and enforces allowedOrigins on the actual GET/POST (preflight is permissive because the key is not sent on OPTIONS). OWASP Top 10 [23] motivates hashed secrets, ownership checks, and avoiding leakage of stack traces.
+0114|Normal|2.8 Comparative summary
+0115|Normal|Table 2.1 Comparison of related systems
+0117|Normal|3. RESEARCH GAP
+0118|Normal|From the survey, the following gaps are identified:
+0119|Normal|Gap 1 — Isolation is under-specified in educational RAG systems.
+0120|Normal|Published notebooks retrieve from a single index with no tenant key. In a shared index, omitting a metadata filter silently mixes tenants. Academic reports often draw a “namespace per bot” box that is not what the code does. This work documents and implements logical isolation on a shared index, which is the pattern actually used in many SaaS vector deployments.
+0121|Normal|Gap 2 — Closed commercial platforms versus incomplete open prototypes.
+0122|Normal|Industry tools prove that document chatbots are valuable but cannot be examined for a dissertation. Open prototypes usually stop at a chat UI in localhost, without Google login, public API keys, origin allow-lists, or a published npm widget.
+0123|Normal|Gap 3 — Split-brain architecture (Next.js + Python embedder).
+0124|Normal|Many student projects run FastAPI for embeddings and Next.js for UI. That doubles deployment, environment variables, and failure modes. Pinecone hosted inference makes a single Node.js service sufficient. This gap is engineering research: can a full RAG SaaS avoid a Python sidecar without sacrificing embedding quality?
+0125|Normal|Gap 4 — Two answer paths that drift apart.
+0126|Normal|If the dashboard and the website widget each implement retrieval, prompts diverge and bugs appear in only one path. Relay forces both through answerChatbotQuery. The research interest is architectural: a single pipeline with two authentication facades (session vs API key).
+0127|Normal|Gap 5 — Free-tier LLM brittleness.
+0128|Normal|Academic projects often hard-code one model and fail when the free endpoint is rate-limited or leaks chain-of-thought. Relay treats that as a first-class problem: OpenRouter model fallbacks, detection of leaked reasoning traces, and a deterministic raw-chunk fallback so the user still sees source text.
+0130|Normal|Gap 6 — Public keys are not secrets.
+0131|Normal|Widget keys live in browser JavaScript. The gap in many designs is treating them like server secrets. Relay designs them as public identifiers (pk_live_) that only permit chat, never upload or delete, and that are further bound by CORS origins.
+0132|Normal|This project occupies the gap between a research RAG pipeline and a small multi-tenant product: inspectable, deployable, and isolation-aware.
+0133|Normal|4. PROBLEM STATEMENT / DEFINITION
+0134|Normal|4.1 Problem statement
+0135|Normal|Organisations need website and internal assistants that answer questions only from their own documents, with visible sources, while multiple organisations share the same hosted platform. Existing solutions are either (a) closed commercial SaaS, or (b) single-tenant prototypes that do not provide authentication, tenant isolation on a shared vector index, or a safe public embed API.
+0136|Normal|4.2 Formal definition
+0137|Normal|Let \( U \) be the set of users and \( C \) the set of chatbots. Each chatbot \( c \in C \) has an owner \( owner(c) \in U \), a document collection \( D_c \), and a public key \( k_c \).
+0138|Normal|Ingestion. For each document \( d \in D_c \), extract text, split into chunks \( \{t_{c,i}\} \) of maximum length 800 characters with overlap 150, compute embeddings \( v_{c,i} = E_{passage}(t_{c,i}) \), and store \( (v_{c,i}, metadata_{c,i}) \) where \( metadata_{c,i} \) contains chatbot_id = c.
+0139|Normal|Query. Given question \( q \) issued either by \( owner(c) \) (session) or by a widget presenting \( k_c \) from an allowed origin:
+0140|Normal|1.  \( v_q = E_{query}(q) \)
+0141|Normal|2.  Retrieve top-\( k \) neighbours of \( v_q \) subject to filter chatbot_id = c
+0142|Normal|3.  Generate answer \( a = LLM(q, \{t_{c,i}\}) \) under a prompt that forbids use of parametric knowledge outside the chunks
+0143|Normal|4.  Return \( a \) together with source names and similarity scores
+0144|Normal|Isolation invariant. For any query on chatbot \( c \), the retrieved set must be a subset of chunks whose metadata chatbot id equals \( c \). No other chatbot’s text may appear in the LLM context.
+0145|Normal|Authorisation invariant. Dashboard mutations require session.user.id = owner(c). Public chat requires a valid \( k_c \) and an allowed Origin. Possession of \( k_c \) must not allow document upload or chatbot deletion.
+0146|Normal|4.3 Research questions
+0147|Normal|1.  Can tenant isolation on a shared Pinecone index be enforced solely by server-side metadata filters, without a separate index per chatbot?
+0148|Normal|2.  Can dashboard chat and third-party widget chat share one RAG implementation without leaking owner credentials to the browser widget?
+0149|Normal|3.  Can a complete RAG SaaS run as one Next.js process using hosted embeddings, avoiding a Python microservice?
+0150|Normal|5. PROPOSED SYSTEM / PROPOSED METHODOLOGY
+0151|Normal|5.1 Overview
+0152|Normal|Relay is a multi-tenant web platform. An owner signs in with Google, creates one or more chatbots, uploads documents, tests answers in the dashboard, then copies an API key onto any website. Visitors of that website use a floating widget. The Next.js server performs parsing, chunking, embedding, retrieval, and generation.
+0153|Normal|5.2 Methodology (research + engineering)
+0154|Normal|The work follows an applied-research methodology:
+0155|Normal|1.  Literature review of RAG, embeddings, and multi-tenancy (Chapter 2).
+0156|Normal|2.  Gap analysis (Chapter 3) leading to the problem statement (Chapter 4).
+0157|Normal|3.  Architecture design of a single-service RAG SaaS with two auth facades.
+0158|Normal|4.  Implementation in TypeScript (Next.js 15, React 19, Mongoose, Pinecone SDK, Auth.js).
+0159|Normal|5.  Verification by unit tests, isolation reasoning, and a live deployment.
+0160|Normal|6.  Demonstration via dashboard UI and the published widget package.
+0161|Normal|5.3 Proposed architecture (logical layers)
+0162|Normal|1.  Presentation layer — Landing page, login, dashboard, chatbot workspace (chat + embed tabs), and the Shadow DOM widget on customer sites.
+0163|Normal|2.  API layer — App Router route handlers. Session-protected /api/chatbots/* and public /api/public/*.
+0164|Normal|3.  Domain layer — answerChatbotQuery, chunker, parser, API-key generator, CORS helpers.
+0165|Normal|4.  Data layer — MongoDB (users, chatbots, widget config, api keys); Pinecone (vectors + metadata).
+0166|Normal|5.  External inference — Pinecone hosted embeddings; OpenRouter chat completions.
+0167|Normal|5.4 Authentication and tenancy model
+0168|Normal|•  Owners: Google OAuth. On first login a User document is upserted in MongoDB. The MongoDB _id is stored in the JWT and exposed as session.user.id.
+0169|Normal|•  Route protection: Middleware requires a session for /dashboard and /chatbots/*. Public API routes are excluded from session middleware.
+0170|Normal|•  Ownership: Every chatbot API loads the bot by UUID and returns 403 if userId does not match the session.
+0171|Normal|•  Widgets: Authorization: Bearer pk_live_… or x-api-key. The key is the chatbot identifier for public calls; the customer site never needs the internal UUID.
+0172|Normal|5.5 Document ingestion methodology
+0173|Normal|1.  Validate session and ownership.
+0174|Normal|2.  Accept either a whole file (file) or a chunked upload (chunk, uploadId, chunkIndex, totalChunks, fileName) so payloads stay under Vercel’s ~4.5 MB limit. Client slices at 3.5 MB.
+0175|Normal|3.  Reassemble bytes; reject non-PDF/DOCX/TXT.
+0176|Normal|4.  Extract text: unpdf for PDF, mammoth for DOCX, UTF-8 for TXT.
+0177|Normal|5.  Chunk with recursive separators ['\n\n', '\n', '. ', ' '], size 800, overlap 150.
+0178|Normal|6.  Embed passages in batches of 96.
+0179|Normal|7.  Upsert to Pinecone in batches of 100 with metadata { chatbot_id, document_id, document_name, chunk_id, text }.
+0180|Normal|5.6 Query methodology (RAG)
+0181|Normal|1.  Authenticate (session + ownership, or API key + origin).
+0182|Normal|2.  Embed the question with inputType: query.
+0183|Normal|3.  Query Pinecone: cosine similarity, topK default 5 (public API capped at 10), filter chatbot_id.
+0184|Normal|4.  If no matches, return a fixed “could not find” message (no LLM call).
+0185|Normal|5.  Else build numbered DOCUMENT i (name): text context and call OpenRouter with a system prompt that:
+0186|Normal|•  forbids answering from outside the context,
+0187|Normal|•  forbids mentioning embeddings/Pinecone,
+0188|Normal|•  forbids leaking chain-of-thought.
+0189|Normal|6.  Primary model: meta-llama/llama-3.3-70b-instruct:free. Fallbacks: openai/gpt-oss-120b:free, deepseek/deepseek-r1:free, openrouter/free.
+0190|Normal|7.  If the completion looks like leaked reasoning, or the HTTP call fails, fall back to a quoted excerpt of the top retrieved chunks.
+0191|Normal|8.  Return { answer, sources: [{ document_name, chunk_id, score }] }.
+0192|Normal|5.7 Widget methodology
+0193|Normal|The package relay-chat-widget mounts a host element with Shadow DOM so host-page CSS cannot break the UI. On load it GETs /api/public/config for name, colour, position, and welcome message. User messages POST to /api/public/chat. Dashboard settings override defaults unless the embedder passes explicit init() options.
+0194|Normal|5.8 Why this methodology is suitable
+0195|Normal|•  Grounding: RAG is the standard mitigation for closed-domain QA without fine-tuning [1][3].
+0196|Normal|•  Isolation: Shared-index + filter is cheaper than one index per student/tenant and is correct if the filter is mandatory [12][13].
+0197|Normal|•  Single service: Matches serverless deployment (Vercel) and MCA implementation constraints.
+0198|Normal|•  Public key + origin: Matches how real embed scripts work (Stripe-like pk_live_ prefix) without granting write access.
+0199|Normal|6. FLOWCHART / ARCHITECTURE / UML / ERD
+0200|Normal|6.1 System architecture (Fig. 6.1)
+0202|Normal|6.2 Use-case diagram (Fig. 6.2)
+0203|Normal|Actor: Chatbot Owner
+0204|Normal|•  Sign in with Google
+0205|Normal|•  Create / list / delete chatbot
+0206|Normal|•  Upload document
+0207|Normal|•  Ask question in dashboard
+0208|Normal|•  Generate / rotate API key
+0209|Normal|•  Set allowed origins, colour, position, welcome message
+0210|Normal|Actor: Website Visitor
+0211|Normal|•  Open widget
+0212|Normal|•  Read welcome message
+0213|Normal|•  Ask question
+0214|Normal|•  Read answer and sources
+0215|Normal|Actor: System (include)
+0216|Normal|•  Embed text, upsert/query vectors, call LLM, enforce origin allow-list
+0217|Normal|Owner use cases include “Authenticate”. Visitor use cases include “Authenticate with API key” (transparent). Upload and delete are not available to the visitor.
+0218|Normal|6.3 Sequence — document upload (Fig. 6.3)
+0219|Normal|1.  Owner selects file in ChatbotPageClient.
+0220|Normal|2.  Client splits file into ≤ 3.5 MB parts if needed.
+0221|Normal|3.  POST /api/chatbots/{id}/documents with session cookie.
+0222|Normal|4.  Server: auth → load chatbot → ownership check → assemble buffer → extractText → chunkDocument → embedTexts → upsertVectors.
+0223|Normal|5.  Response: { document_name, chunks_processed }.
+0224|Normal|6.  UI lists the document and chunk count.
+0225|Normal|6.4 Sequence — dashboard Q&A (Fig. 6.4)
+0226|Normal|1.  Owner submits question.
+0227|Normal|2.  POST /api/chatbots/{id}/search { query, top_k }.
+0228|Normal|3.  Server: session + ownership.
+0229|Normal|4.  answerChatbotQuery(id, query, top_k).
+0230|Normal|5.  JSON { answer, sources } rendered as a bot bubble with source chips.
+0231|Normal|6.5 Sequence — public widget (Fig. 6.5)
+0232|Normal|1.  Page loads; init({ apiKey }).
+0233|Normal|2.  GET /api/public/config with Bearer key (OPTIONS preflight first).
+0234|Normal|3.  Server: lookup chatbot by apiKey; check Origin; return widgetConfig.
+0235|Normal|4.  User sends message.
+0236|Normal|5.  POST /api/public/chat { query }.
+0237|Normal|6.  Same answerChatbotQuery(chatbot.uuid, query) as dashboard.
+0238|Normal|7.  Widget appends answer in Shadow DOM.
+0239|Normal|6.6 Entity-relationship diagram (Fig. 6.6)
+0240|Normal|User
+0241|Normal|_id (PK), name, email (unique), passwordHash (optional), googleId, image, createdAt, updatedAt
+0242|Normal|Chatbot
+0243|Normal|_id (PK), uuid (unique), name, userId (FK → User._id), apiKey (unique, sparse), allowedOrigins[], widgetConfig { position, primaryColor, welcomeMessage }, createdAt, updatedAt
+0244|Normal|Relationship: User 1 — N Chatbot.
+0245|Normal|Pinecone is not a relational store; logically:
+0246|Normal|VectorRecord
+0247|Normal|id, values[1024], chatbot_id, document_id, document_name, chunk_id, text
+0248|Normal|Relationship: Chatbot 1 — N VectorRecord (enforced in application queries, not by a SQL foreign key).
+0249|Normal|6.7 Class diagram — core domain (Fig. 6.7)
+0250|Normal|•  User / Chatbot (Mongoose models)
+0251|Normal|•  chunkDocument(text, metadata, options)
+0252|Normal|•  extractText(buffer, filename)
+0253|Normal|•  embedTexts / embedQuery / upsertVectors / queryVectors
+0254|Normal|•  generateAnswer(query, context, sources)
+0255|Normal|•  answerChatbotQuery(chatbotId, query, topK)
+0256|Normal|•  authenticatePublicRequest(request)
+0257|Normal|•  generateApiKey()
+0258|Normal|•  ChatWidget (package): mount, open, send, destroy
+0261|Normal|6.8 Activity diagram — RAG answering (Fig. 6.8)
+0262|Normal|Start → Authenticate caller → Embed query → Query Pinecone with chatbot_id filter → Matches empty? Yes → Return “could not find” → End. No → Build context → Call OpenRouter → Valid final answer? Yes → Return answer + sources. No → Return formatted raw chunks + sources → End.
+0263|Normal|6.9 Data-flow (ingestion vs query)
+0264|Normal|Ingestion is write-only to Pinecone and does not call the LLM. Query is read-only on Pinecone and write-nothing to the index. This separation prevents a chat message from polluting another tenant’s knowledge base.
+0265|Normal|7. PROJECT REQUIREMENT SPECIFICATION
+0266|Normal|7.1 Hardware requirements (Table 7.1)
+0268|Normal|Pinecone and OpenRouter run in the cloud; no local GPU is required.
+0269|Normal|7.2 Software requirements (Table 7.2)
+0271|Normal|7.3 Functional requirements (Table 7.3)
+0273|Normal|7.4 Non-functional requirements (Table 7.4)
+0275|Normal|7.5 External interface requirements
+0276|Normal|•  Google Cloud Console: OAuth client; redirect https://<host>/api/auth/callback/google.
+0277|Normal|•  Pinecone: API key, index name, index host, embedding model name.
+0278|Normal|•  OpenRouter: API key, primary model, comma-separated fallbacks.
+0279|Normal|•  MongoDB: connection URI.
+0280|Normal|8. SYSTEM IMPLEMENTATION — CODE DOCUMENTATION
+0281|Normal|8.1 Repository layout
+0283|Normal|8.2 Algorithm 1 — Recursive character chunking
+0284|Normal|This is the methodology implemented in src/lib/chunker.ts.
+0286|Normal|Each output chunk is tagged with chatbot_id, document_id, document_name, and sequential chunk_id. Overlap preserves sentences split across boundaries so retrieval still finds them.
+0287|Normal|8.3 Algorithm 2 — Document ingestion
+0289|Normal|8.4 Algorithm 3 — RAG answering (`answerChatbotQuery`)
+0291|Normal|System prompt rules (implemented in src/lib/llm.ts): use only retrieved context; do not invent facts; if insufficient, say so; do not mention Pinecone/embeddings; do not emit chain-of-thought; temperature 0.1; max_tokens 1500; reasoning: { effort: 'low', exclude: true }.
+0292|Normal|8.5 Algorithm 4 — Public widget authentication
+0294|Normal|generateApiKey() returns pk_live_ concatenated with 24 cryptographically random bytes as hex (crypto.randomBytes).
+0295|Normal|8.6 Protocols used
+0297|Normal|8.7 API catalogue (Table 8.1)
+0299|Normal|8.8 Vector metadata schema (Table 8.2)
+0301|Normal|8.9 Security implementation notes
+0302|Normal|•  Dashboard APIs never trust a client-supplied user id; they read it from the JWT.
+0303|Normal|•  Public key cannot upload documents (no public documents route).
+0304|Normal|•  Error responses use generic messages; stack traces stay on the server log.
+0305|Normal|•  Widget uses Shadow DOM to reduce XSS/CSS collision with the host page.
+0306|Normal|•  allowedOrigins default ['*'] for first-run DX; owners are expected to lock this to their site in production.
+0307|Normal|8.10 Deployment implementation
+0308|Normal|•  Vercel: Next.js production build; environment variables as in .env.example.
+0309|Normal|•  Docker: multi-stage node:20-alpine — deps, npm run build, run server.js from standalone output.
+0310|Normal|•  Live demonstration URL: https://relayy-dun.vercel.app
+0311|Normal|9. RESULT / OUTCOME / EXPERIMENTAL RESULT
+0312|Normal|9.1 Implementation outcome
+0313|Normal|The proposed system was fully implemented and deployed at https://relayy-dun.vercel.app. After Google sign-in, the owner dashboard shows an account-level greeting and a library of independent chatbots. In the captured demonstration, four chatbots were present (raj, ram, sample, and sahil), each tagged “RAG Enabled” with its own short id (Fig. 11.3). Summary tiles report chatbot count, active status, and the generation/embedding stack used by the live deployment. From any card the owner can open the workspace or delete that bot without affecting the others, which is the visible form of multi-tenancy at the account layer.
+0314|Normal|9.2 Qualitative RAG experiment
+0315|Normal|A typical evaluation used a short policy-style TXT/PDF uploaded to Chatbot A, an unrelated document on Chatbot B, and questions of three kinds: answerable, unanswerable, and cross-tenant.
+0316|Normal|Table 9.1 Qualitative RAG outcomes
+0320|Normal|Table 9.2 Sample dashboard Q&A on chatbot sahil (Fig. 11.6)
+0322|Normal|This run shows that a natural-language question is rewritten as a structured, readable answer rather than a raw embedding dump. The same workspace is where the owner later copies the public API key (Fig. 11.7–11.8) so a website visitor can ask the same class of question through the widget.
+0323|Normal|9.3 Chunking experiment
+0324|Normal|On the unit tests and sample paragraphs:
+0325|Normal|•  Text shorter than 800 characters remains a single chunk.
+0326|Normal|•  Two ~600-character paragraphs separated by a blank line split into multiple chunks, each ≤ 800 characters.
+0327|Normal|•  Metadata (chatbot_id, document_name, chunk_id starting at 0) is attached to every chunk (chunker.test.ts).
+0328|Normal|This confirms Algorithm 1 behaves as specified before any vector is written.
+0329|Normal|9.4 Multi-tenant isolation result
+0330|Normal|Isolation is enforced in application code on every query, not only documented. Both /search and /api/public/chat call queryVectors(embedding, chatbotId, topK), which always sends:
+0332|Normal|Therefore a correctly implemented Pinecone query cannot return another tenant’s matches. Combined with ownership checks on write paths, Chatbot A cannot ingest into B and cannot read B.
+0333|Normal|9.5 Widget outcome
+0334|Normal|The npm package initialises with only apiKey. Config is fetched remotely, so changing colour or welcome text in the dashboard updates the widget without a rebuild of the customer site (unless the customer overrode options in init()). CORS preflight succeeds; disallowed origins cannot read the JSON response.
+0335|Normal|9.6 Discussion
+0336|Normal|Results support the three research questions in Chapter 4:
+0337|Normal|1.  Shared-index isolation is achievable with a mandatory equality filter.
+0338|Normal|2.  Two auth facades can share one RAG function; the widget never receives the owner’s Google session.
+0339|Normal|3.  Hosted embeddings remove the Python sidecar; the deployed artefact is one Next.js app.
+0340|Normal|Limitations of this experiment: we did not compute RAGAS/BLEU against a labelled QA set (future work). The evaluation is functional and qualitative, which is appropriate for a system-building MCA project, but not a substitute for a large IR benchmark.
+0341|Normal|10. SYSTEM TESTING
+0342|Normal|Testing used Jest (npm test in nextjs-app) with mocked Auth, database, and models for API tests, plus real functions for the chunker and Mongoose validation.
+0343|Normal|10.1 Test levels
+0345|Normal|10.2 Unit test summary (Table 10.1)
+0347|Normal|10.3 Chatbot API test cases (Table 10.2)
+0349|Normal|10.4 Isolation and security tests (Table 10.3)
+0351|Normal|10.5 Test environment
+0352|Normal|•  OS: Windows 10 (development); Linux (Vercel build)
+0353|Normal|•  Node.js 20
+0354|Normal|•  Jest 29 with ts-jest
+0355|Normal|•  Command: cd nextjs-app && npm test
+0356|Normal|10.6 Defect notes
+0357|Normal|During development, typical defects included: Vercel 413 on large PDFs (fixed by 3.5 MB client chunking); free LLM endpoints leaking reasoning (fixed by detector + fallbacks); hydration mismatch if window.location.origin was read during first render of EmbedSettings (fixed by setting baseUrl in useEffect). These are closed in the current codebase.
+0358|Normal|11. GUI / SCREENSHOTS
+0359|Normal|Fig. 11.1 Landing page
+0362|Normal|Fig. 11.2 Sign-in page
+0365|Normal|Fig. 11.3 Owner dashboard
+0366|Normal|After Google sign-in the owner is greeted by name (“Hi, SAHIL”). Four summary tiles show chatbot count (4), Active status, LLM, and embeddings. The Library lists independent bots raj, ram, and sample (plus sahil in the same library), each with a short id, a “RAG Enabled” badge, creation date (13 Sep 2026), Open Chatbot, and delete. + New Chatbot is at the top right. This screen is the evidence of multi-bot tenancy at the account level (FR-02).
+0367|Normal|Fig. 11.4 Create chatbot modal
+0368|Normal|Fig. 11.5 Chatbot workspace — knowledge base
+0369|Normal|Visible on the left of Fig. 11.6: dashed drop zone “Click to select a file PDF, DOCX, TXT”, purple Upload Document button, and an Uploaded Documents list. Evidence of ingestion FR-04–FR-06.
+0371|Normal|Fig. 11.6 Chat and grounded answer
+0372|Normal|Workspace for chatbot sahil, tabs Chat and Embed & API, status Ready. The user asked “tell me the skills of sahil”. The assistant returned a structured list (languages and frameworks, databases, DevOps and cloud tools). The composer placeholder reads “Ask a question about your documents…”. Evidence of RAG answering FR-07.
+0374|Normal|Fig. 11.7 Embed & API — key, origins, appearance
+0375|Normal|Public API key shown masked (pk_live_…) with Reveal, Copy, and Regenerate. Warning: regenerating invalidates the old key. Allowed Origins is set to * for first-run embedding. Widget appearance: Icon Position Bottom Right, Primary Color #6f3eeb, Welcome Message. Settings are stored on the server so the customer site does not hard-code colours. Evidence of FR-09–FR-10.
+0377|Normal|Fig. 11.8 Embed snippets for a customer website
+0378|Normal|Save Settings at the top. Two copy-paste blocks: (1) script tag loading https://relayy-dun.vercel.app/widget.js and calling ChatbotWidget.init({ apiKey }); (2) npm install relay-chat-widget with import { init } from 'relay-chat-widget'. This is the publishing path for FR-11–FR-15.
+0379|Normal|GUI design notes:
+0380|Normal|The interface uses a light mesh background, glassy cards, and a purple–indigo brand aligned with the widget primary colour. A theme toggle (sun/moon) sits in the header. The chatbot screen splits owner testing (Chat) from publishing (Embed & API). The floating widget on customer sites uses Shadow DOM so host-page CSS cannot break the panel.
+0381|Normal|12. CONCLUSIONS
+0382|Normal|This research project designed and implemented Relay, a multi-tenant retrieval-augmented generation platform for document-grounded chatbots. The work started from a well-known NLP idea—conditioning an LLM on retrieved evidence [1]—and treated tenancy, public embedding, and operational fallbacks as first-class research-engineering problems rather than afterthoughts.
+0383|Normal|The main conclusions are:
+0384|Normal|1.  RAG is an appropriate architecture for closed-domain organisational Q&A. It avoids fine-tuning, supports immediate knowledge updates via file upload, and enables citations by returning document_name and chunk scores with every answer.
+0385|Normal|2.  Logical isolation on a shared vector index is sufficient when every upsert tags chatbot_id and every query filters on that field. Combined with session ownership checks on write APIs, tenants do not read or overwrite each other’s knowledge.
+0386|Normal|3.  A single Next.js service is enough for a complete RAG product when embeddings are hosted (Pinecone inference) and generation is a remote HTTP API (OpenRouter). A Python microservice is not required for this class of system.
+0387|Normal|4.  Dashboard and widget must share one answer pipeline. Dual implementations would diverge. Relay’s answerChatbotQuery plus two authentication facades (JWT vs pk_live_ key) keeps behaviour identical while exposing only chat to the public internet.
+0388|Normal|5.  Public widget keys should be designed as limited, origin-bound identifiers, not as god-mode secrets. Rotation, origin allow-lists, and the absence of public write routes match how real embeddable products work.
+0389|Normal|6.  Free-tier LLMs are unreliable as a single point of failure. Model fallback lists, reasoning-trace detection, and raw-chunk fallback turned a common academic failure mode into a defined degradation path.
+0390|Normal|The deployed system at https://relayy-dun.vercel.app and the npm package relay-chat-widget demonstrate that the design is not only theoretical. For an MCA research project, the contribution is an inspectable, isolation-aware, document-grounded chatbot platform that sits between a LangChain tutorial and a closed commercial SaaS.
+0391|Normal|13. LIMITATIONS AND FUTURE SCOPE
+0392|Normal|13.1 Limitations
+0393|Normal|1.  Retrieval quality is not benchmarked on a labelled set (e.g. RAGAS, nDCG). Evaluation in this report is functional and qualitative.
+0394|Normal|2.  No conversational memory. Each question is independent; follow-ups like “what about the next clause?” are not resolved with dialogue history.
+0395|Normal|3.  PDF extraction is text-oriented. Scanned PDFs, complex tables, and figures are not OCR’d or parsed as structure.
+0396|Normal|4.  Chunked-upload store is in-memory per serverless instance. If two chunks of a large file hit different instances, reassembly can fail. A blob store (S3) would be more robust.
+0397|Normal|5.  *Default CORS ``** is convenient for demos but unsafe if owners forget to lock origins.
+0398|Normal|6.  Public API keys in the browser can be copied; an attacker on an allowed origin can query the knowledge base (read-only). Rate limiting and usage quotas are not fully productised.
+0399|Normal|7.  LLM answers still depend on chunk quality. If chunking splits a table awkwardly, the model may under-answer even with the filter working correctly.
+0400|Normal|8.  Single region / vendor lock-in with Pinecone and OpenRouter; no on-prem embedding option in the current code.
+0401|Normal|9.  Deletion of a chatbot currently removes only the MongoDB document. Pinecone vectors for that chatbot_id are not deleted, so orphan embeddings can remain in the index (they stay unreachable to other tenants because of the query filter, but they still occupy storage).
+0402|Normal|10.  Google-only login in the production UI; email-password registration code exists in tests/routes but is not the primary path.
+0403|Normal|13.2 Future scope
+0404|Normal|1.  Evaluation harness: golden questions per document, RAGAS faithfulness/relevancy, and a small public dataset for regression.
+0405|Normal|2.  Hybrid search: combine dense vectors with keyword (BM25/sparse) for identifiers, codes, and names.
+0406|Normal|3.  Persistent chat sessions and optional user identification in the widget.
+0407|Normal|4.  Admin analytics: question volume, unanswered rate, top source documents.
+0408|Normal|5.  Durable multipart upload to object storage; virus scanning.
+0409|Normal|6.  Delete-by-filter and document-level delete in Pinecone when a file or bot is removed.
+0410|Normal|7.  Rate limiting and per-key quotas (Redis) on /api/public/chat.
+0411|Normal|8.  Reranking (e.g. a cross-encoder) on the top-20 before sending top-5 to the LLM (Advanced RAG [3]).
+0412|Normal|9.  More modalities: HTML crawl, Markdown, CSV; captioned images.
+0413|Normal|10.  On-prem / open-weight embeddings for institutions that cannot send text to Pinecone.
+0414|Normal|11.  Role-based access: organisation accounts with multiple owners.
+0415|Normal|12.  Self-RAG style skip/retrieve [20] for chitchat vs knowledge questions.
+0416|Normal|14. REFERENCES
+0417|Normal|[1] P. Lewis, E. Perez, A. Piktus, F. Petroni, V. Karpukhin, N. Goyal, H. Küttler, M. Lewis, W. Yih, T. Rocktäschel, S. Riedel, and D. Kiela, “Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks,” in Advances in Neural Information Processing Systems (NeurIPS), vol. 33, pp. 9459–9474, 2020.
+0418|Normal|[2] V. Karpukhin, B. Oguz, S. Min, P. Lewis, L. Wu, S. Edunov, D. Chen, and W. Yih, “Dense Passage Retrieval for Open-Domain Question Answering,” in Proc. EMNLP, 2020.
+0419|Normal|[3] Y. Gao, Y. Xiong, X. Gao, K. Jia, J. Pan, Y. Bi, Y. Dai, J. Sun, M. Wang, and H. Wang, “Retrieval-Augmented Generation for Large Language Models: A Survey,” arXiv:2312.10997, 2023.
+0420|Normal|[4] Z. Ji, N. Lee, R. Frieske, T. Yu, D. Su, Y. Xu, E. Ishii, Y. Bang, A. Madotto, and P. Fung, “Survey of Hallucination in Natural Language Generation,” ACM Computing Surveys, vol. 55, no. 12, 2023.
+0421|Normal|[5] L. Wang, N. Yang, X. Huang, L. Yang, R. Majumder, and F. Wei, “Multilingual E5 Text Embeddings: A Technical Report,” arXiv:2402.05672, 2024.
+0422|Normal|[6] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, L. Kaiser, and I. Polosukhin, “Attention Is All You Need,” in Advances in Neural Information Processing Systems, 2017.
+0423|Normal|[7] N. Reimers and I. Gurevych, “Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks,” in Proc. EMNLP-IJCNLP, 2019.
+0424|Normal|[8] J. Johnson, M. Douze, and H. Jégou, “Billion-scale Similarity Search with GPUs,” IEEE Transactions on Big Data, vol. 7, no. 3, pp. 535–547, 2019.
+0425|Normal|[9] J. Devlin, M. Chang, K. Lee, and K. Toutanova, “BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding,” in Proc. NAACL-HLT, 2019.
+0426|Normal|[10] H. Touvron et al., “Llama 2: Open Foundation and Fine-Tuned Chat Models,” arXiv:2307.09288, 2023.
+0427|Normal|[11] A. Grattafiori et al. (Meta AI), “The Llama 3 Herd of Models,” arXiv:2407.21783, 2024.
+0428|Normal|[12] R. Krebs, C. Momm, and S. Kounev, “Architectural Concerns in Multi-tenant SaaS Applications,” in Proc. 2nd Int. Conf. on Cloud Computing and Services Science (CLOSER), 2012.
+0429|Normal|[13] Pinecone Systems, “Pinecone Documentation: Indexes, Metadata Filtering, and Inference API,” https://docs.pinecone.io, accessed 2026.
+0430|Normal|[14] OpenRouter, “OpenRouter API Reference,” https://openrouter.ai/docs, accessed 2026.
+0431|Normal|[15] Auth.js, “Auth.js Documentation (NextAuth.js v5),” https://authjs.dev, accessed 2026.
+0432|Normal|[16] Vercel Inc., “Next.js Documentation,” https://nextjs.org/docs, accessed 2026.
+0433|Normal|[17] MongoDB Inc., “MongoDB Manual,” https://www.mongodb.com/docs/manual/, accessed 2026.
+0434|Normal|[18] H. Chase and LangChain Contributors, “LangChain Documentation,” https://python.langchain.com, 2022–2025.
+0435|Normal|[19] OpenAI, “GPT-4 Technical Report,” arXiv:2303.08774, 2023.
+0436|Normal|[20] A. Asai, Z. Wu, Y. Wang, A. Sil, and H. Hajishirzi, “Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection,” in Proc. ICLR, 2024.
+0437|Normal|[21] G. Izacard and E. Grave, “Leveraging Passage Retrieval with Generative Models for Open Domain Question Answering,” in Proc. EACL, 2021.
+0438|Normal|[22] R. T. Fielding, “Architectural Styles and the Design of Network-based Software Architectures,” Ph.D. dissertation, University of California, Irvine, 2000.
+0439|Normal|[23] OWASP Foundation, “OWASP Top 10 – 2021,” https://owasp.org/Top10/, 2021.
+0440|Normal|[24] N. Reimers, “Sentence Transformers Documentation,” https://www.sbert.net, accessed 2026.
+0441|Normal|[25] T. Wolf et al., “Transformers: State-of-the-Art Natural Language Processing,” in Proc. EMNLP (Systems Demonstrations), 2020.
+0442|Normal|15. PLAGIARISM REPORT OF PAPER AND PROJECT REPORT
+0443|Normal|The college requires a plagiarism report of the paper and project report from any open-source tool. This section cannot be fabricated. After you paste Chapters 1–14 into Word, run one of the following and bind the PDF as Annexure A:
+0444|Normal|•  [Turnitin](https://www.turnitin.com) (if the college provides a class ID)
+0445|Normal|•  [DrillBit / Ouriginal](https://www.drillbitplagiarism.com) (common in Indian universities)
+0446|Normal|•  [Plagiarism Checker X](https://plagiarismcheckerx.com) (desktop)
+0447|Normal|•  [Quetext](https://www.quetext.com) or [SmallSEOTools Plagiarism Checker](https://smallseotools.com/plagiarism-checker/) (open web tools)
+0448|Normal|Suggested declaration to print under the screenshot of the similarity certificate:
+0449|Normal|> We hereby declare that the contents of this research project report are our original work except where citations are provided. The similarity index obtained from [tool name] on [date] is [X]%, which is within the limit prescribed by the MCA Department, P.E.S.’s Modern College of Engineering, Pune. The full plagiarism report is attached as Annexure A.
+0450|Normal|Tips to keep similarity low (legitimate, not spinning):
+0451|Normal|•  Keep the literature survey in your own sentences; cite [1]–[25] instead of copying abstracts.
+0452|Normal|•  Do not paste README.md or code comments as paragraphs; describe behaviour in academic English (this document already does that).
+0453|Normal|•  Quoted system prompt text should be short or placed in an appendix.
+0454|Normal|•  Run the checker on the final Word file including names, not on this Markdown draft.

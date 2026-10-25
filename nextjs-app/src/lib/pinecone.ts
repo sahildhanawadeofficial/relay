@@ -69,6 +69,7 @@ export interface PineconeRecord {
   metadata: {
     chatbot_id: string;
     document_id: string;
+    documentName: string;
     document_name: string;
     chunk_id: number;
     text: string;
@@ -87,13 +88,32 @@ export async function upsertVectors(vectors: PineconeRecord[]): Promise<void> {
   }
 }
 
+export async function deleteVectorsByDocumentName(chatbotId: string, documentName: string): Promise<void> {
+  const index = getIndex();
+  const namespace = index.namespace(NAMESPACE);
+
+  // Delete both the canonical key and the legacy key used by vectors uploaded
+  // before documentName was introduced.
+  await namespace.deleteMany({
+    filter: {
+      $and: [{ chatbot_id: { $eq: chatbotId } }, { documentName: { $eq: documentName } }],
+    },
+  });
+  await namespace.deleteMany({
+    filter: {
+      $and: [{ chatbot_id: { $eq: chatbotId } }, { document_name: { $eq: documentName } }],
+    },
+  });
+}
+
 export interface QueryMatch {
   id: string;
   score: number;
   metadata: {
     chatbot_id: string;
     document_id: string;
-    document_name: string;
+    documentName?: string;
+    document_name?: string;
     chunk_id: number;
     text: string;
   };

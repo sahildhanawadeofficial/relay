@@ -11,6 +11,7 @@ export interface IChatbot extends Document {
   uuid: string;
   name: string;
   userId: mongoose.Types.ObjectId;
+  documents: string[];
   // Public key used to authenticate requests from the embeddable widget
   // (npm package / <script> tag) running on an external website. Distinct
   // from the dashboard's session-based auth used by the owner. Optional in
@@ -45,6 +46,7 @@ const ChatbotSchema = new Schema<IChatbot>(
     uuid: { type: String, required: true, unique: true },
     name: { type: String, required: true, maxlength: 100 },
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    documents: { type: [String], default: [] },
     apiKey: { type: String, unique: true, sparse: true, index: true },
     allowedOrigins: { type: [String], default: ['*'] },
     widgetConfig: { type: WidgetConfigSchema, default: () => ({}) },

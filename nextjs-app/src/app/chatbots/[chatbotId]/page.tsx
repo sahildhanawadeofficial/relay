@@ -27,6 +27,7 @@ export default async function ChatbotPage({ params }: { params: Promise<{ chatbo
   const serializedChatbot = {
     uuid: chatbot.uuid,
     name: chatbot.name,
+    documents: chatbot.documents ?? [],
     createdAt: chatbot.createdAt.toISOString(),
     apiKey: chatbot.apiKey ?? null,
     allowedOrigins: chatbot.allowedOrigins ?? ['*'],

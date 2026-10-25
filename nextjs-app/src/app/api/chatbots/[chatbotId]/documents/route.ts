@@ -4,7 +4,7 @@ import { dbConnect } from '@/lib/db';
 import { Chatbot } from '@/models/Chatbot';
 import { extractText, isSupportedFile } from '@/lib/parser';
 import { chunkDocument } from '@/lib/chunker';
-import { embedTexts, upsertVectors, PineconeRecord } from '@/lib/pinecone';
+import { deleteVectorsByDocumentName, embedTexts, upsertVectors, PineconeRecord } from '@/lib/pinecone';
 import { v4 as uuidv4 } from 'uuid';
 
 export const dynamic = 'force-dynamic';
@@ -25,6 +25,30 @@ const chunkStore = new Map<
 //   2. Chunked      — formData with `chunk`, `uploadId`, `chunkIndex`,
 //                     `totalChunks`, `fileName` (for larger files)
 // ─────────────────────────────────────────────────────────────────
+export async function GET(request: Request, { params }: { params: Promise<{ chatbotId: string }> }) {
+  try {
+    const { chatbotId } = await params;
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    await dbConnect();
+    const chatbot = await Chatbot.findOne({ uuid: chatbotId }).select('userId documents').lean();
+    if (!chatbot) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    }
+    if (chatbot.userId.toString() !== session.user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    return NextResponse.json({ documents: chatbot.documents ?? [] });
+  } catch (error) {
+    console.error('Failed to fetch documents:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
 export async function POST(request: Request, { params }: { params: Promise<{ chatbotId: string }> }) {
   try {
     const { chatbotId } = await params;
@@ -121,6 +145,39 @@ export async function POST(request: Request, { params }: { params: Promise<{ cha
   }
 }
 
+export async function DELETE(request: Request, { params }: { params: Promise<{ chatbotId: string }> }) {
+  try {
+    const { chatbotId } = await params;
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    await dbConnect();
+    const chatbot = await Chatbot.findOne({ uuid: chatbotId });
+    if (!chatbot) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    }
+    if (chatbot.userId.toString() !== session.user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const body = await request.json().catch(() => ({}));
+    const documentName = typeof body.documentName === 'string' ? body.documentName.trim() : '';
+    if (!documentName) {
+      return NextResponse.json({ error: 'Document name is required' }, { status: 400 });
+    }
+
+    await deleteVectorsByDocumentName(chatbotId, documentName);
+    await Chatbot.updateOne({ _id: chatbot._id }, { $pull: { documents: documentName } });
+
+    return NextResponse.json({ message: 'Document deleted', documentName }, { status: 200 });
+  } catch (error) {
+    console.error('Failed to delete document:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────
 // Shared pipeline: extract text → chunk → embed → upsert to Pinecone
 // ─────────────────────────────────────────────────────────────────
@@ -134,6 +191,7 @@ async function processDocument(buffer: Buffer, fileName: string, chatbotId: stri
   const chunks = chunkDocument(text, {
     chatbot_id: chatbotId,
     document_id: documentId,
+    documentName: fileName,
     document_name: fileName,
   });
 
@@ -150,6 +208,7 @@ async function processDocument(buffer: Buffer, fileName: string, chatbotId: stri
     metadata: {
       chatbot_id: chatbotId,
       document_id: documentId,
+      documentName: fileName,
       document_name: fileName,
       chunk_id: chunk.chunk_id,
       text: chunk.text,
@@ -157,6 +216,7 @@ async function processDocument(buffer: Buffer, fileName: string, chatbotId: stri
   }));
 
   await upsertVectors(vectors);
+  await Chatbot.updateOne({ uuid: chatbotId }, { $addToSet: { documents: fileName } });
 
   return NextResponse.json(
     {

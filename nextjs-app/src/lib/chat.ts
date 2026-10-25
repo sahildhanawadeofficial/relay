@@ -30,13 +30,13 @@ export async function answerChatbotQuery(
 
   // 3. Format sources and context
   const sources: SourceItem[] = matches.map((m) => ({
-    document_name: m.metadata.document_name || 'Unknown',
+    document_name: m.metadata.documentName || m.metadata.document_name || 'Unknown',
     chunk_id: m.metadata.chunk_id ?? 0,
     score: m.score,
   }));
 
   const contextParts = matches.map((m, i) => {
-    const docName = m.metadata.document_name || 'Unknown';
+    const docName = m.metadata.documentName || m.metadata.document_name || 'Unknown';
     const text = m.metadata.text || '';
     return `DOCUMENT ${i + 1} (${docName}):\n${text}`;
   });

@@ -6,6 +6,7 @@ import EmbedSettings, { WidgetConfig } from './EmbedSettings';
 interface ChatbotData {
   uuid: string;
   name: string;
+  documents: string[];
   createdAt?: string;
   apiKey?: string | null;
   allowedOrigins?: string[];
@@ -39,10 +40,43 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
 
   const [file, setFile] = useState<File | null>(null);
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>({ type: 'idle' });
-  const [uploadedDocs, setUploadedDocs] = useState<UploadedDoc[]>([]);
+  const [uploadedDocs, setUploadedDocs] = useState<UploadedDoc[]>(
+    chatbot.documents.map((name) => ({ name, chunks: 0, uploadedAt: 'Previously uploaded' }))
+  );
+  const [deletingDocument, setDeletingDocument] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadDocuments = async () => {
+      try {
+        const res = await fetch(`/api/chatbots/${chatbot.uuid}/documents`, {
+          cache: 'no-store',
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to load documents');
+        if (!cancelled) {
+          setUploadedDocs(
+            (data.documents as string[]).map((name) => ({
+              name,
+              chunks: 0,
+              uploadedAt: 'Saved in knowledge base',
+            }))
+          );
+        }
+      } catch (error) {
+        console.error('Failed to load uploaded documents:', error);
+      }
+    };
+
+    void loadDocuments();
+    return () => {
+      cancelled = true;
+    };
+  }, [chatbot.uuid]);
 
   // Auto-scroll chat to bottom
   useEffect(() => {
@@ -109,7 +143,7 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
         // For chunked uploads, only the last chunk returns the final result
         if (isLastChunk || totalChunks === 1) {
           setUploadedDocs((prev) => [
-            ...prev,
+            ...prev.filter((doc) => doc.name !== file.name),
             {
               name: file.name,
               chunks: data.chunks_processed || 0,
@@ -123,6 +157,26 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
       }
     } catch (err: any) {
       setUploadStatus({ type: 'error', message: err.message });
+    }
+  };
+
+  const handleDeleteDocument = async (documentName: string) => {
+    if (deletingDocument) return;
+    setDeletingDocument(documentName);
+
+    try {
+      const res = await fetch(`/api/chatbots/${chatbot.uuid}/documents`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ documentName }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Delete failed');
+      setUploadedDocs((prev) => prev.filter((doc) => doc.name !== documentName));
+    } catch (err: any) {
+      setUploadStatus({ type: 'error', message: err.message || 'Failed to delete document' });
+    } finally {
+      setDeletingDocument(null);
     }
   };
 
@@ -336,17 +390,27 @@ export default function ChatbotPageClient({ chatbot }: { chatbot: ChatbotData })
           ) : (
             <ul className="space-y-2">
               {uploadedDocs.map((doc, i) => (
-                <li key={i} className="glass-card p-3 animate-fade-in-up">
+                <li key={doc.name} className="glass-card p-3 animate-fade-in-up">
                   <div className="flex items-start gap-2">
                     <span className="text-base flex-shrink-0">
                       {doc.name.endsWith('.pdf') ? '📕' : doc.name.endsWith('.docx') ? '📘' : '📄'}
                     </span>
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="text-xs font-medium text-ink truncate">{doc.name}</p>
                       <p className="text-xs text-faint mt-0.5">
-                        {doc.chunks} chunks · {doc.uploadedAt}
+                        {doc.chunks ? `${doc.chunks} chunks · ` : ''}{doc.uploadedAt}
                       </p>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteDocument(doc.name)}
+                      disabled={deletingDocument === doc.name}
+                      className="text-xs text-faint hover:text-red-400 disabled:opacity-50"
+                      aria-label={`Delete ${doc.name}`}
+                      title={`Delete ${doc.name}`}
+                    >
+                      {deletingDocument === doc.name ? '...' : 'Delete'}
+                    </button>
                   </div>
                 </li>
               ))}

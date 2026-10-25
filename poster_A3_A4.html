@@ -1,0 +1,1828 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RELAY – Research Poster | MCA 2026–27</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap"
+    rel="stylesheet" />
+
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --color-primary: #4338ca;
+      --color-blue: #2563eb;
+      --color-sky: #0284c7;
+      --color-cyan: #0891b2;
+      --color-emerald: #059669;
+      --color-amber: #d97706;
+      --color-rose: #e11d48;
+      --color-violet: #7c3aed;
+      --color-purple: #6d28d9;
+      --bg-canvas: #f8fafc;
+      --text-main: #0f172a;
+      --text-body: #334155;
+      --text-muted: #64748b;
+      --border-card: #e2e8f0;
+    }
+
+    html,
+    body {
+      width: 100%;
+      background: #0f172a;
+      font-family: 'Inter', sans-serif;
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Screen Controls ── */
+    .screen-only {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      background: #1e1b4b;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      flex-wrap: wrap;
+    }
+
+    .screen-only h1 {
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      cursor: pointer;
+      font-size: 12.5px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      color: white;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(67, 56, 202, 0.4);
+      filter: brightness(1.1);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-view-a4 {
+      background: linear-gradient(135deg, #4338ca, #3b82f6);
+    }
+
+    .btn-view-a3 {
+      background: linear-gradient(135deg, #6d28d9, #8b5cf6);
+    }
+
+    .btn-print-a4 {
+      background: linear-gradient(135deg, #059669, #10b981);
+    }
+
+    .btn-print-a3 {
+      background: linear-gradient(135deg, #d97706, #f59e0b);
+    }
+
+    /* ── Poster Wrapper ── */
+    .poster-wrapper {
+      display: flex;
+      justify-content: center;
+      padding: 30px 20px 50px;
+      background: #0f172a;
+      min-height: 100vh;
+    }
+
+    /* ── Poster Canvas (Vibrant Presentation Theme) ── */
+    .poster {
+      width: 794px;
+      background: #f8fafc;
+      background-image:
+        radial-gradient(circle at 10% 8%, rgba(224, 231, 255, 0.8) 0%, transparent 40%),
+        radial-gradient(circle at 90% 12%, rgba(254, 226, 226, 0.7) 0%, transparent 45%),
+        radial-gradient(circle at 15% 85%, rgba(207, 250, 254, 0.7) 0%, transparent 45%),
+        radial-gradient(circle at 85% 90%, rgba(243, 232, 255, 0.8) 0%, transparent 40%);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      position: relative;
+      overflow: hidden;
+      border-radius: 14px;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.08);
+    }
+
+    /* ── A3 Scale Mode (Screen Preview) ── */
+    .a3-size {
+      width: 1020px;
+    }
+
+    .a3-size .poster-header {
+      padding: 24px 34px 18px;
+    }
+
+    .a3-size .header-logo {
+      width: 76px;
+      height: 76px;
+    }
+
+    .a3-size .h-institute {
+      font-size: 13px;
+    }
+
+    .a3-size .h-dept {
+      font-size: 11px;
+    }
+
+    .a3-size .relay-name {
+      font-size: 24px;
+    }
+
+    .a3-size .h-meta {
+      font-size: 11px;
+    }
+
+    .a3-size .title-band {
+      padding: 16px 34px 14px;
+    }
+
+    .a3-size .poster-title {
+      font-size: 17px;
+    }
+
+    .a3-size .authors-names {
+      font-size: 12px;
+    }
+
+    .a3-size .guide-chip {
+      font-size: 11px;
+    }
+
+    .a3-size .poster-body {
+      padding: 16px 22px;
+      gap: 14px;
+    }
+
+    .a3-size .card {
+      padding: 13px 15px;
+    }
+
+    .a3-size .card-header-badge {
+      font-size: 11px;
+      padding: 3px 10px;
+    }
+
+    .a3-size .abstract-text {
+      font-size: 11px;
+    }
+
+    .a3-size .kw {
+      font-size: 9px;
+    }
+
+    .a3-size .gap-badge {
+      min-width: 20px;
+      height: 20px;
+      font-size: 9px;
+    }
+
+    .a3-size .gap-item {
+      font-size: 10.5px;
+      margin-bottom: 7px;
+    }
+
+    .a3-size .pipe-box {
+      font-size: 9px;
+      padding: 4px 8px;
+    }
+
+    .a3-size .pipeline-section {
+      font-size: 9.5px;
+    }
+
+    .a3-size .pipe-mono {
+      font-size: 9px;
+      padding: 6px 10px;
+    }
+
+    .a3-size .inno-icon {
+      width: 26px;
+      height: 26px;
+      font-size: 13px;
+    }
+
+    .a3-size .inno-title {
+      font-size: 10.5px;
+    }
+
+    .a3-size .inno-desc {
+      font-size: 9px;
+    }
+
+    .a3-size .tech-item {
+      font-size: 10px;
+    }
+
+    .a3-size .tech-sub {
+      font-size: 8px;
+    }
+
+    .a3-size .result-num {
+      font-size: 24px;
+    }
+
+    .a3-size .result-label {
+      font-size: 9px;
+    }
+
+    .a3-size .compare-table {
+      font-size: 9.5px;
+    }
+
+    .a3-size .compare-table th {
+      font-size: 9px;
+    }
+
+    .a3-size .ss-box img {
+      height: 94px;
+    }
+
+    .a3-size .ss-label {
+      font-size: 8.5px;
+      padding: 4px 6px;
+    }
+
+    .a3-size .poster-footer {
+      padding: 12px 26px;
+    }
+
+    .a3-size .footer-left {
+      font-size: 10px;
+    }
+
+    .a3-size .footer-url {
+      font-size: 10px;
+    }
+
+    .a3-size .footer-link-label {
+      font-size: 8px;
+    }
+
+    .a3-size .year-badge {
+      font-size: 10.5px;
+    }
+
+    /* ══ HEADER ══ */
+    .poster-header {
+      background: linear-gradient(135deg, #1e1b4b 0%, #2e1065 45%, #1e1b4b 100%);
+      padding: 18px 24px 14px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+      color: white;
+    }
+
+    .poster-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.3) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .header-logo {
+      width: 62px;
+      height: 62px;
+      border-radius: 12px;
+      background: #ffffff;
+      padding: 4px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    }
+
+    .header-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .header-text {
+      flex: 1;
+    }
+
+    .h-institute {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 0.3px;
+      line-height: 1.4;
+      margin-bottom: 2px;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .h-dept {
+      font-size: 9px;
+      color: #c4b5fd;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .relay-logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 8px;
+      padding: 3px 12px;
+      backdrop-filter: blur(10px);
+    }
+
+    .relay-r {
+      width: 22px;
+      height: 22px;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 900;
+      color: white;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .relay-name {
+      font-size: 18px;
+      font-weight: 800;
+      color: white;
+      letter-spacing: 1.5px;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .h-meta {
+      text-align: right;
+      font-size: 9px;
+      color: #e0d4ff;
+      line-height: 1.7;
+    }
+
+    .h-meta-chip {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 1px 8px;
+      margin-bottom: 2px;
+    }
+
+    /* ══ TITLE BAND ══ */
+    .title-band {
+      padding: 13px 24px 11px;
+      background: #ffffff;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .poster-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      line-height: 1.35;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .title-hl-blue {
+      color: #2563eb;
+      font-weight: 900;
+    }
+
+    .title-hl-purple {
+      color: #7c3aed;
+      font-weight: 900;
+    }
+
+    .authors-row {
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .authors-label {
+      font-size: 7.5px;
+      color: #4338ca;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      background: #e0e7ff;
+      border-radius: 4px;
+      padding: 2px 6px;
+    }
+
+    .authors-names {
+      font-size: 9.5px;
+      color: #1e293b;
+      font-weight: 600;
+    }
+
+    .guide-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #fef3c7;
+      border: 1px solid #fde68a;
+      border-radius: 20px;
+      padding: 2px 9px;
+      font-size: 8.5px;
+      color: #b45309;
+    }
+
+    .guide-chip strong {
+      color: #78350f;
+      font-weight: 700;
+    }
+
+    .guide-chip.live-chip {
+      border-color: #a7f3d0;
+      background: #ecfdf5;
+      color: #047857;
+    }
+
+    .guide-chip.live-chip strong {
+      color: #065f46;
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      display: inline-block;
+    }
+
+    /* ══ BODY GRID ══ */
+    .poster-body {
+      padding: 12px 18px;
+      display: grid;
+      grid-template-columns: 1fr 1.08fr 1fr;
+      gap: 10px;
+    }
+
+    /* ── Card Styling (Pure White on Paper) ── */
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--border-card);
+      border-radius: 10px;
+      padding: 11px 12px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+    }
+
+    /* Bold Colored Top Borders */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3.5px;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    }
+
+    .card.blue::before {
+      background: linear-gradient(90deg, #0284c7, #2563eb);
+    }
+
+    .card.amber::before {
+      background: linear-gradient(90deg, #d97706, #f59e0b);
+    }
+
+    .card.green::before {
+      background: linear-gradient(90deg, #059669, #10b981);
+    }
+
+    .card.pink::before {
+      background: linear-gradient(90deg, #e11d48, #f43f5e);
+    }
+
+    .card.cyan::before {
+      background: linear-gradient(90deg, #0891b2, #4f46e5);
+    }
+
+    .card-header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 8.5px;
+      font-weight: 800;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: 2.5px 8px;
+      border-radius: 5px;
+      margin-bottom: 7px;
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, #4338ca, #6366f1);
+    }
+
+    .card.blue .card-header-badge {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+    }
+
+    .card.amber .card-header-badge {
+      background: linear-gradient(135deg, #b45309, #d97706);
+    }
+
+    .card.green .card-header-badge {
+      background: linear-gradient(135deg, #047857, #059669);
+    }
+
+    .card.pink .card-header-badge {
+      background: linear-gradient(135deg, #be123c, #e11d48);
+    }
+
+    .card.cyan .card-header-badge {
+      background: linear-gradient(135deg, #0e7490, #4338ca);
+    }
+
+    .span-2 {
+      grid-column: span 2;
+    }
+
+    .span-3 {
+      grid-column: span 3;
+    }
+
+    /* ── Abstract ── */
+    .abstract-text {
+      font-size: 8.5px;
+      line-height: 1.55;
+      color: var(--text-body);
+    }
+
+    .abstract-text strong {
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    .keyword-row {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .kw {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 7.5px;
+      color: #1d4ed8;
+      font-weight: 700;
+    }
+
+    /* ── Pipeline ── */
+    .pipeline-section {
+      font-size: 8px;
+      font-weight: 800;
+      color: #1e293b;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .pipeline-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .pipe-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 3px 6px;
+      font-size: 7.5px;
+      color: #1e293b;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .pipe-box.hl {
+      background: #eff6ff;
+      border: 1.5px solid #3b82f6;
+      color: #1d4ed8;
+      font-weight: 700;
+    }
+
+    .pipe-arrow {
+      color: #2563eb;
+      font-size: 9px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .pipe-divider {
+      height: 1px;
+      background: #e2e8f0;
+      margin: 5px 0;
+    }
+
+    .pipe-mono {
+      font-size: 7.5px;
+      color: #0f172a;
+      line-height: 1.45;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-left: 3px solid #2563eb;
+      border-radius: 4px;
+      padding: 5px 8px;
+      font-family: monospace;
+    }
+
+    .pipe-mono em {
+      color: #dc2626;
+      font-style: normal;
+      font-weight: 800;
+    }
+
+    /* ── Gaps ── */
+    .gap-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      margin-bottom: 5px;
+      font-size: 8px;
+      color: #334155;
+      line-height: 1.45;
+    }
+
+    .gap-badge {
+      min-width: 17px;
+      height: 17px;
+      background: linear-gradient(135deg, #d97706, #b45309);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 7.5px;
+      font-weight: 800;
+      color: #ffffff;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── Innovations ── */
+    .innovation-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      margin-bottom: 6px;
+    }
+
+    .inno-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      flex-shrink: 0;
+    }
+
+    .inno-title {
+      font-size: 8.5px;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.3;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .inno-desc {
+      font-size: 7.5px;
+      color: #475569;
+      line-height: 1.4;
+      margin-top: 1px;
+    }
+
+    /* ── Screenshots Strip (6 Images) ── */
+    .screenshots-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .ss-box {
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .ss-chrome {
+      background: #e2e8f0;
+      padding: 2.5px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #cbd5e1;
+    }
+
+    .ss-dots {
+      display: flex;
+      gap: 3px;
+    }
+
+    .ss-dots span {
+      width: 3.5px;
+      height: 3.5px;
+      border-radius: 50%;
+    }
+
+    .ss-dots span:nth-child(1) { background: #ef4444; }
+    .ss-dots span:nth-child(2) { background: #f59e0b; }
+    .ss-dots span:nth-child(3) { background: #10b981; }
+
+    .ss-tag {
+      font-size: 6px;
+      font-weight: 800;
+      color: #334155;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .ss-img-wrap {
+      overflow: hidden;
+      background: #000;
+    }
+
+    .ss-box img {
+      width: 100%;
+      height: 60px;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+    }
+
+    .ss-label {
+      padding: 3px 5px;
+      font-size: 6.5px;
+      font-weight: 700;
+      color: #1e293b;
+      text-align: center;
+      background: #ffffff;
+      border-top: 1px solid #e2e8f0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── Section Divider ── */
+    .section-divider {
+      grid-column: span 3;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 1px 0;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1.5px;
+      background: #cbd5e1;
+    }
+
+    .divider-label {
+      font-size: 8px;
+      font-weight: 800;
+      color: #4338ca;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* ── Tech Stack ── */
+    .tech-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+    }
+
+    .tech-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 6px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 7.5px;
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    .tech-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .tech-sub {
+      font-size: 6.5px;
+      color: #64748b;
+      display: block;
+      font-weight: 500;
+    }
+
+    /* ── Results (Vibrant Pastel Jewels) ── */
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+      margin-bottom: 6px;
+    }
+
+    .result-box {
+      text-align: center;
+      padding: 6px 4px;
+      border-radius: 7px;
+      border: 1.5px solid transparent;
+    }
+
+    .result-box.r1 {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+    .result-box.r1 .result-num {
+      color: #1d4ed8;
+    }
+
+    .result-box.r2 {
+      background: #f5f3ff;
+      border-color: #ddd6f3;
+    }
+    .result-box.r2 .result-num {
+      color: #6d28d9;
+    }
+
+    .result-box.r3 {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+    .result-box.r3 .result-num {
+      color: #047857;
+    }
+
+    .result-box.r4 {
+      background: #fff1f2;
+      border-color: #fecdd3;
+    }
+    .result-box.r4 .result-num {
+      color: #be123c;
+    }
+
+    .result-num {
+      font-size: 19px;
+      font-weight: 900;
+      font-family: 'Outfit', sans-serif;
+      line-height: 1;
+    }
+
+    .result-label {
+      font-size: 7px;
+      color: #334155;
+      margin-top: 2px;
+      line-height: 1.25;
+      font-weight: 600;
+    }
+
+    /* ── Compare Table ── */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 7.5px;
+    }
+
+    .compare-table th {
+      padding: 4px 5px;
+      background: #f1f5f9;
+      color: #1e293b;
+      font-weight: 800;
+      text-align: left;
+      font-size: 7px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      border-bottom: 1.5px solid #cbd5e1;
+    }
+
+    .compare-table td {
+      padding: 3.5px 5px;
+      color: #334155;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: middle;
+    }
+
+    .compare-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .compare-table tr.hl-row td {
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-weight: 700;
+    }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1px 5px;
+      border-radius: 10px;
+      font-size: 7.5px;
+      font-weight: 800;
+    }
+
+    .badge-status.ck {
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #86efac;
+    }
+
+    .badge-status.cx {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fca5a5;
+    }
+
+    .badge-status.cp {
+      background: #fef3c7;
+      color: #b45309;
+      border: 1px solid #fde68a;
+    }
+
+    .our-tag {
+      font-size: 6px;
+      background: #2563eb;
+      color: #ffffff;
+      border-radius: 3px;
+      padding: 1px 4px;
+      font-weight: 800;
+      margin-left: 3px;
+    }
+
+    /* ══ FOOTER ══ */
+    .poster-footer {
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #1e1b4b;
+      color: #ffffff;
+    }
+
+    .footer-left {
+      font-size: 8px;
+      color: #c4b5fd;
+      line-height: 1.6;
+    }
+
+    .footer-left strong {
+      color: #ffffff;
+    }
+
+    .footer-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .footer-link {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .footer-link-label {
+      font-size: 6.5px;
+      color: #a5b4fc;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-weight: 600;
+    }
+
+    .footer-url {
+      font-size: 8px;
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
+    .year-badge {
+      background: linear-gradient(135deg, #d97706, #f59e0b);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 8.5px;
+      font-weight: 800;
+      color: white;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* ══ PRINT RULES ══ */
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+
+    @media print {
+      .screen-only {
+        display: none !important;
+      }
+
+      html, body {
+        background: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 210mm !important;
+        height: 297mm !important;
+        overflow: hidden !important;
+      }
+
+      .poster-wrapper {
+        padding: 0 !important;
+        margin: 0 !important;
+        display: block !important;
+        width: 210mm !important;
+        height: 297mm !important;
+        background: none !important;
+      }
+
+      /* ── Full-Bleed Edge-to-Edge A4 (Zero Waste) ── */
+      .poster:not(.a3-size) {
+        width: 210mm !important;
+        height: 297mm !important;
+        max-height: 297mm !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+
+      /* Compact A4 Typography & Sizing */
+      .poster:not(.a3-size) .poster-header {
+        padding: 8px 16px 6px !important;
+        gap: 12px !important;
+      }
+      .poster:not(.a3-size) .header-logo {
+        width: 44px !important;
+        height: 44px !important;
+        padding: 3px !important;
+        border-radius: 8px !important;
+      }
+      .poster:not(.a3-size) .h-institute {
+        font-size: 8.5px !important;
+        line-height: 1.3 !important;
+        margin-bottom: 2px !important;
+      }
+      .poster:not(.a3-size) .h-dept {
+        font-size: 7.5px !important;
+        margin-bottom: 3px !important;
+      }
+      .poster:not(.a3-size) .relay-logo-badge {
+        padding: 2px 8px !important;
+        gap: 5px !important;
+      }
+      .poster:not(.a3-size) .relay-r {
+        width: 18px !important;
+        height: 18px !important;
+        font-size: 11px !important;
+      }
+      .poster:not(.a3-size) .relay-name {
+        font-size: 15px !important;
+      }
+      .poster:not(.a3-size) .h-meta {
+        font-size: 7.5px !important;
+        line-height: 1.5 !important;
+      }
+
+      .poster:not(.a3-size) .title-band {
+        padding: 6px 16px 5px !important;
+      }
+      .poster:not(.a3-size) .poster-title {
+        font-size: 11px !important;
+        line-height: 1.25 !important;
+      }
+      .poster:not(.a3-size) .authors-row {
+        margin-top: 3px !important;
+        gap: 6px !important;
+      }
+      .poster:not(.a3-size) .authors-label {
+        font-size: 6.5px !important;
+      }
+      .poster:not(.a3-size) .authors-names {
+        font-size: 7.5px !important;
+      }
+      .poster:not(.a3-size) .guide-chip {
+        padding: 1.5px 6px !important;
+        font-size: 7px !important;
+      }
+
+      .poster:not(.a3-size) .poster-body {
+        padding: 6px 14px 6px !important;
+        gap: 6px !important;
+        flex: 1 !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1.05fr 1fr !important;
+      }
+
+      .poster:not(.a3-size) .card {
+        padding: 6px 8px !important;
+        border-radius: 6px !important;
+      }
+      .poster:not(.a3-size) .card-header-badge {
+        font-size: 7.5px !important;
+        margin-bottom: 4px !important;
+        padding: 2px 6px !important;
+      }
+
+      .poster:not(.a3-size) .abstract-text {
+        font-size: 7px !important;
+        line-height: 1.4 !important;
+      }
+      .poster:not(.a3-size) .keyword-row {
+        margin-top: 4px !important;
+        gap: 2.5px !important;
+      }
+      .poster:not(.a3-size) .kw {
+        font-size: 6px !important;
+        padding: 1px 4px !important;
+      }
+
+      .poster:not(.a3-size) .pipeline-section {
+        font-size: 6.5px !important;
+        margin-bottom: 2px !important;
+      }
+      .poster:not(.a3-size) .pipe-box {
+        font-size: 6.5px !important;
+        padding: 2px 5px !important;
+      }
+      .poster:not(.a3-size) .pipe-arrow {
+        font-size: 7px !important;
+      }
+      .poster:not(.a3-size) .pipe-divider {
+        margin: 3px 0 !important;
+      }
+      .poster:not(.a3-size) .pipe-mono {
+        font-size: 6px !important;
+        padding: 3px 6px !important;
+        line-height: 1.3 !important;
+      }
+
+      .poster:not(.a3-size) .gap-item {
+        font-size: 6.5px !important;
+        line-height: 1.3 !important;
+        gap: 4px !important;
+        margin-bottom: 3px !important;
+      }
+      .poster:not(.a3-size) .gap-badge {
+        min-width: 13px !important;
+        height: 13px !important;
+        font-size: 6px !important;
+      }
+
+      .poster:not(.a3-size) .innovation-item {
+        gap: 5px !important;
+        margin-bottom: 3.5px !important;
+      }
+      .poster:not(.a3-size) .inno-icon {
+        width: 18px !important;
+        height: 18px !important;
+        font-size: 9px !important;
+      }
+      .poster:not(.a3-size) .inno-title {
+        font-size: 7.5px !important;
+      }
+      .poster:not(.a3-size) .inno-desc {
+        font-size: 6.5px !important;
+        line-height: 1.25 !important;
+      }
+
+      .poster:not(.a3-size) .screenshots-strip {
+        gap: 4px !important;
+      }
+      .poster:not(.a3-size) .ss-box {
+        border-radius: 4px !important;
+      }
+      .poster:not(.a3-size) .ss-box img {
+        height: 48px !important;
+      }
+      .poster:not(.a3-size) .ss-label {
+        font-size: 5.5px !important;
+        padding: 2px 3px !important;
+      }
+
+      .poster:not(.a3-size) .section-divider {
+        margin: 1px 0 !important;
+      }
+      .poster:not(.a3-size) .divider-label {
+        font-size: 6.5px !important;
+      }
+
+      .poster:not(.a3-size) .tech-grid {
+        gap: 2.5px !important;
+      }
+      .poster:not(.a3-size) .tech-item {
+        padding: 2.5px 4px !important;
+        font-size: 6.5px !important;
+        gap: 4px !important;
+      }
+      .poster:not(.a3-size) .tech-dot {
+        width: 5px !important;
+        height: 5px !important;
+      }
+      .poster:not(.a3-size) .tech-sub {
+        font-size: 5.5px !important;
+      }
+
+      .poster:not(.a3-size) .result-grid {
+        gap: 3px !important;
+        margin-bottom: 4px !important;
+      }
+      .poster:not(.a3-size) .result-box {
+        padding: 3px 4px !important;
+      }
+      .poster:not(.a3-size) .result-num {
+        font-size: 13px !important;
+      }
+      .poster:not(.a3-size) .result-label {
+        font-size: 5.5px !important;
+        line-height: 1.15 !important;
+      }
+
+      .poster:not(.a3-size) .compare-table {
+        font-size: 6px !important;
+      }
+      .poster:not(.a3-size) .compare-table th {
+        padding: 2px 3px !important;
+        font-size: 5.5px !important;
+      }
+      .poster:not(.a3-size) .compare-table td {
+        padding: 2px 3px !important;
+      }
+
+      .poster:not(.a3-size) .poster-footer {
+        padding: 5px 16px 5px !important;
+      }
+      .poster:not(.a3-size) .footer-left {
+        font-size: 6.5px !important;
+        line-height: 1.35 !important;
+      }
+      .poster:not(.a3-size) .footer-url {
+        font-size: 6.5px !important;
+      }
+      .poster:not(.a3-size) .footer-link-label {
+        font-size: 5.5px !important;
+      }
+      .poster:not(.a3-size) .year-badge {
+        font-size: 7px !important;
+        padding: 2px 6px !important;
+      }
+
+      /* ── Edge-to-Edge A3 Poster ── */
+      .poster.a3-size {
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        width: 297mm !important;
+        height: 420mm !important;
+        min-height: 420mm !important;
+        display: flex !important;
+        flex-direction: column !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+
+      .poster.a3-size .poster-body {
+        flex: 1 !important;
+        align-content: space-between;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Controls ── -->
+  <div class="screen-only">
+    <h1>🎓 RELAY Research Poster</h1>
+    <button class="btn btn-view-a4" onclick="setSize('a4')">👁 Preview A4</button>
+    <button class="btn btn-view-a3" onclick="setSize('a3')">👁 Preview A3</button>
+    <button class="btn btn-print-a4" onclick="printSize('a4')">🖨 Print / Save A4</button>
+    <button class="btn btn-print-a3" onclick="printSize('a3')">🖨 Print / Save A3</button>
+  </div>
+
+  <!-- ── Poster ── -->
+  <div class="poster-wrapper" id="pw">
+    <div class="poster" id="poster">
+
+      <!-- HEADER -->
+      <div class="poster-header">
+        <div class="header-logo">
+          <img src="college-logo.jpg" alt="PES Modern College Logo" />
+        </div>
+        <div class="header-text">
+          <div class="h-institute">P.E.S.'s Modern College of Engineering, Pune – 411 005</div>
+          <div class="h-dept">Autonomous Institute · Savitribai Phule Pune University · MCA Department</div>
+          <div class="relay-logo-badge">
+            <div class="relay-r">R</div>
+            <div class="relay-name">RELAY</div>
+          </div>
+        </div>
+        <div class="h-meta">
+          <div class="h-meta-chip">Academic Year: <strong style="color:white">2026–27</strong></div><br />
+          <div class="h-meta-chip">Programme: <strong style="color:white">Master of Computer Application</strong></div><br />
+          <div class="h-meta-chip">Guide: <strong style="color:white">Prof. Swati Ghule</strong></div>
+        </div>
+      </div>
+
+      <!-- TITLE BAND -->
+      <div class="title-band">
+        <div class="poster-title">
+          Relay: A <span class="title-hl-blue">Multi-Tenant</span> Retrieval-Augmented Generation Platform for <span class="title-hl-purple">Document-Grounded</span> Chatbots
+        </div>
+        <div class="authors-row">
+          <span class="authors-label">AUTHORS</span>
+          <span class="authors-names">Aaditi Choramle &nbsp;·&nbsp; Chitrang Choudhari &nbsp;·&nbsp; Pratik Kamble &nbsp;·&nbsp; Sahil Dhanavade</span>
+          <span class="guide-chip">🎓 Guide: <strong>Prof. Swati Ghule</strong></span>
+          <span class="guide-chip live-chip"><span class="pulse-dot"></span> <strong>relayy-dun.vercel.app</strong></span>
+        </div>
+      </div>
+
+      <!-- BODY -->
+      <div class="poster-body">
+
+        <!-- ─ Abstract ─ -->
+        <div class="card">
+          <div class="card-header-badge">📄 Abstract &amp; Problem</div>
+          <div class="abstract-text">
+            Large Language Models (LLMs) generate fluent answers but hallucinate and cannot be restricted to private documents. <strong>Retrieval-Augmented Generation (RAG)</strong> resolves this by embedding document chunks and conditioning the LLM on retrieved evidence.
+            <br /><br />
+            <strong>Relay</strong> is a multi-tenant SaaS platform where signed-in owners create isolated chatbots, upload PDF / DOCX / TXT documents, and receive grounded answers with source citations. Chunks are embedded via Pinecone's hosted <strong>multilingual-e5-large</strong> and isolated by server-side <code style="color:#6d28d9;background:#f3e8ff;padding:1px 4px;border-radius:3px">chatbot_id</code> metadata filters. Answers use <strong>OpenRouter</strong> (Llama 3.3 70B + fallbacks).
+            <br /><br />
+            A single <strong>Next.js 15</strong> service handles auth, ingestion, retrieval, and generation — no Python microservice. An npm widget <code style="color:#6d28d9;background:#f3e8ff;padding:1px 4px;border-radius:3px">relay-chat-widget</code> embeds chatbots on any website.
+          </div>
+          <div class="keyword-row">
+            <span class="kw">RAG</span>
+            <span class="kw">Multi-Tenant SaaS</span>
+            <span class="kw">Vector Search</span>
+            <span class="kw">Pinecone</span>
+            <span class="kw">LLM</span>
+            <span class="kw">Next.js 15</span>
+            <span class="kw">OpenRouter</span>
+            <span class="kw">Embeddable Widget</span>
+          </div>
+        </div>
+
+        <!-- ─ Architecture ─ -->
+        <div class="card blue">
+          <div class="card-header-badge">🏗 Dual-Pipeline Architecture</div>
+
+          <div class="pipeline-section">📥 Document Ingestion Pipeline</div>
+          <div class="pipeline-row" style="margin-bottom:5px">
+            <div class="pipe-box">Upload (PDF/DOCX/TXT)</div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-box">Text Extract</div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-box hl">Recursive Chunk (800/150)</div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-box hl">Pinecone Embed</div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-box">Upsert + Metadata</div>
+          </div>
+
+          <div class="pipe-divider"></div>
+
+          <div class="pipeline-section">💬 Query / Answer Pipeline</div>
+          <div class="pipeline-row" style="margin-bottom:5px">
+            <div class="pipe-box">User Question</div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-box hl">Query Embed</div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-box hl">Vector Search + Filter</div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-box">Top-K Chunks</div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-box hl">OpenRouter LLM</div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-box">Answer + Citations</div>
+          </div>
+
+          <div class="pipe-divider"></div>
+
+          <div class="pipeline-section">🔐 Dual Auth Façades → One Core</div>
+          <div class="pipeline-row" style="margin-bottom:5px">
+            <div class="pipe-box hl">Google OAuth (Dashboard)</div>
+            <div style="font-size:12px;color:#7c3aed;font-weight:800;margin:0 3px">⊕</div>
+            <div class="pipe-box hl">pk_live_ Key (Widget)</div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-box">answerChatbotQuery()</div>
+          </div>
+
+          <div class="pipe-divider"></div>
+
+          <div class="pipeline-section">🔒 Multi-Tenant Isolation Invariant</div>
+          <div class="pipe-mono">
+            filter: &#123; chatbot_id: &#123; $eq: chatbotId &#125; &#125;<br />
+            ⟹ Chatbot A can <em>never</em> see Chatbot B's chunks
+          </div>
+        </div>
+
+        <!-- ─ Research Gaps ─ -->
+        <div class="card amber">
+          <div class="card-header-badge">🔍 Research Gaps Addressed</div>
+          <div class="gap-item">
+            <div class="gap-badge">G1</div>
+            <div><strong style="color:#b45309">Isolation under-specified</strong> — Educational RAG notebooks omit metadata filters, silently mixing tenants on shared indexes.</div>
+          </div>
+          <div class="gap-item">
+            <div class="gap-badge">G2</div>
+            <div><strong style="color:#b45309">Closed SaaS vs. incomplete prototypes</strong> — Commercial tools (Chatbase, CustomGPT) are opaque; open tutorials lack auth, isolation, or widget.</div>
+          </div>
+          <div class="gap-item">
+            <div class="gap-badge">G3</div>
+            <div><strong style="color:#b45309">Python sidecar dependency</strong> — Most student projects run FastAPI for embeddings. Pinecone hosted inference removes this entirely.</div>
+          </div>
+          <div class="gap-item">
+            <div class="gap-badge">G4</div>
+            <div><strong style="color:#b45309">Diverging answer paths</strong> — Dashboard and widget often implement separate retrieval, causing drift. Relay uses one shared function.</div>
+          </div>
+          <div class="gap-item">
+            <div class="gap-badge">G5</div>
+            <div><strong style="color:#b45309">Free-tier LLM brittleness</strong> — Rate limits crash bots. Relay adds a 4-model fallback cascade + raw-chunk safety net.</div>
+          </div>
+          <div class="gap-item">
+            <div class="gap-badge">G6</div>
+            <div><strong style="color:#b45309">Widget keys treated as secrets</strong> — <code style="color:#6d28d9;background:#f3e8ff;padding:1px 3px;border-radius:3px">pk_live_</code> keys are public identifiers: chat-only, CORS-bound, never exposing internal UUIDs.</div>
+          </div>
+        </div>
+
+        <!-- ─ Key Innovations ─ -->
+        <div class="card green">
+          <div class="card-header-badge">⚡ Key Innovations</div>
+
+          <div class="innovation-item">
+            <div class="inno-icon" style="background:#ecfdf5;border:1px solid #a7f3d0">🛡</div>
+            <div>
+              <div class="inno-title">Logical Multi-Tenant Isolation</div>
+              <div class="inno-desc">Shared Pinecone index; mandatory <code>chatbot_id</code> filter guarantees zero cross-tenant leakage — no per-tenant index overhead.</div>
+            </div>
+          </div>
+          <div class="innovation-item">
+            <div class="inno-icon" style="background:#f5f3ff;border:1px solid #ddd6f3">🔌</div>
+            <div>
+              <div class="inno-title">Zero-Python Hosting (Hosted Inference)</div>
+              <div class="inno-desc">Pinecone <code>pc.inference.embed</code> + <em>multilingual-e5-large</em> — no OpenAI credits, no FastAPI sidecar, no dimension mismatch.</div>
+            </div>
+          </div>
+          <div class="innovation-item">
+            <div class="inno-icon" style="background:#eff6ff;border:1px solid #bfdbfe">🧩</div>
+            <div>
+              <div class="inno-title">Embeddable npm Widget</div>
+              <div class="inno-desc"><code>relay-chat-widget</code> uses Shadow DOM, server-fetched appearance, and <code>pk_live_</code> auth — copy-paste embed on any site.</div>
+            </div>
+          </div>
+          <div class="innovation-item">
+            <div class="inno-icon" style="background:#fffbeb;border:1px solid #fde68a">🔄</div>
+            <div>
+              <div class="inno-title">4-Model Fallback Cascade</div>
+              <div class="inno-desc">OpenRouter cascade: Llama 3.3 70B → GPT-OSS 120B → DeepSeek-R1 → raw chunk excerpt — never a blank answer.</div>
+            </div>
+          </div>
+          <div class="innovation-item">
+            <div class="inno-icon" style="background:#fff1f2;border:1px solid #fecdd3">📦</div>
+            <div>
+              <div class="inno-title">Chunked File Uploads</div>
+              <div class="inno-desc">Files &gt;3.5 MB sliced client-side &amp; reassembled server-side — bypasses Vercel's 4.5 MB limit without cloud storage costs.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─ Screenshots ─ -->
+        <div class="card cyan span-2">
+          <div class="card-header-badge">🖥 Application Screenshots &amp; Live Implementation</div>
+          <div class="screenshots-strip">
+            <div class="ss-box">
+              <div class="ss-chrome">
+                <div class="ss-dots"><span></span><span></span><span></span></div>
+                <div class="ss-tag">01 · LANDING</div>
+              </div>
+              <div class="ss-img-wrap">
+                <img src="report-screenshots/fig-extra-landing.png" alt="Relay Landing Page" />
+              </div>
+              <div class="ss-label">Landing Page — SaaS Architecture</div>
+            </div>
+            <div class="ss-box">
+              <div class="ss-chrome">
+                <div class="ss-dots"><span></span><span></span><span></span></div>
+                <div class="ss-tag">02 · DASHBOARD</div>
+              </div>
+              <div class="ss-img-wrap">
+                <img src="report-screenshots/fig-11-3-dashboard.png" alt="Owner Dashboard" />
+              </div>
+              <div class="ss-label">Owner Dashboard — 4 Chatbots</div>
+            </div>
+            <div class="ss-box">
+              <div class="ss-chrome">
+                <div class="ss-dots"><span></span><span></span><span></span></div>
+                <div class="ss-tag">03 · WORKSPACE</div>
+              </div>
+              <div class="ss-img-wrap">
+                <img src="report-screenshots/fig-11-6-chat-workspace.png" alt="Document Q&A Workspace" />
+              </div>
+              <div class="ss-label">Chat Workspace — Citations</div>
+            </div>
+            <div class="ss-box">
+              <div class="ss-chrome">
+                <div class="ss-dots"><span></span><span></span><span></span></div>
+                <div class="ss-tag">04 · SETTINGS</div>
+              </div>
+              <div class="ss-img-wrap">
+                <img src="report-screenshots/fig-11-7-embed-api-settings.png" alt="Embed & API Settings" />
+              </div>
+              <div class="ss-label">Embed &amp; API — Keys &amp; CORS</div>
+            </div>
+            <div class="ss-box">
+              <div class="ss-chrome">
+                <div class="ss-dots"><span></span><span></span><span></span></div>
+                <div class="ss-tag">05 · INTEGRATION</div>
+              </div>
+              <div class="ss-img-wrap">
+                <img src="report-screenshots/fig-11-8-embed-snippets.png" alt="Integration Code Snippets" />
+              </div>
+              <div class="ss-label">Integration — &lt;script&gt; &amp; React</div>
+            </div>
+            <div class="ss-box">
+              <div class="ss-chrome">
+                <div class="ss-dots"><span></span><span></span><span></span></div>
+                <div class="ss-tag">06 · NPM REGISTRY</div>
+              </div>
+              <div class="ss-img-wrap">
+                <img src="report-screenshots/fig-extra-npm-widget.png" alt="NPM Widget Package" />
+              </div>
+              <div class="ss-label">npm Registry — relay-chat-widget</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─ Divider ─ -->
+        <div class="section-divider">
+          <div class="divider-line"></div>
+          <div class="divider-label">✨ Technology Stack · Empirical Results · System Comparison ✨</div>
+          <div class="divider-line"></div>
+        </div>
+
+        <!-- ─ Tech Stack ─ -->
+        <div class="card">
+          <div class="card-header-badge">🛠 Technology Stack</div>
+          <div class="tech-grid">
+            <div class="tech-item">
+              <div class="tech-dot" style="background:#0284c7"></div>
+              <div><span>Next.js 15</span><span class="tech-sub">Full-stack App Router</span></div>
+            </div>
+            <div class="tech-item">
+              <div class="tech-dot" style="background:#7c3aed"></div>
+              <div><span>Pinecone SDK</span><span class="tech-sub">Serverless Vector DB</span></div>
+            </div>
+            <div class="tech-item">
+              <div class="tech-dot" style="background:#059669"></div>
+              <div><span>Auth.js v5</span><span class="tech-sub">Google OAuth + JWT</span></div>
+            </div>
+            <div class="tech-item">
+              <div class="tech-dot" style="background:#ea580c"></div>
+              <div><span>OpenRouter API</span><span class="tech-sub">Llama 3.3 70B Cascade</span></div>
+            </div>
+            <div class="tech-item">
+              <div class="tech-dot" style="background:#16a34a"></div>
+              <div><span>MongoDB</span><span class="tech-sub">Users &amp; Config Store</span></div>
+            </div>
+            <div class="tech-item">
+              <div class="tech-dot" style="background:#e11d48"></div>
+              <div><span>React 19</span><span class="tech-sub">Modern UI Framework</span></div>
+            </div>
+            <div class="tech-item">
+              <div class="tech-dot" style="background:#4f46e5"></div>
+              <div><span>TypeScript 5</span><span class="tech-sub">Type-safe Codebase</span></div>
+            </div>
+            <div class="tech-item">
+              <div class="tech-dot" style="background:#d97706"></div>
+              <div><span>Jest</span><span class="tech-sub">API &amp; Unit Test Suite</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─ Results ─ -->
+        <div class="card pink">
+          <div class="card-header-badge">📊 Empirical Results</div>
+          <div class="result-grid">
+            <div class="result-box r1">
+              <div class="result-num">1</div>
+              <div class="result-label">Unified Service<br />(No Python Sidecar)</div>
+            </div>
+            <div class="result-box r2">
+              <div class="result-num">4</div>
+              <div class="result-label">Tenant Chatbots<br />on Shared Index</div>
+            </div>
+            <div class="result-box r3">
+              <div class="result-num">800</div>
+              <div class="result-label">Chunk Size<br />150 Char Overlap</div>
+            </div>
+            <div class="result-box r4">
+              <div class="result-num">0</div>
+              <div class="result-label">Cross-Tenant<br />Data Leaks</div>
+            </div>
+          </div>
+          <div style="font-size:7.5px;color:#1e293b;line-height:1.55;font-weight:600">
+            ✅ Google OAuth secured &nbsp;·&nbsp; ✅ Vercel deployed<br />
+            ✅ Automated tests pass &nbsp;·&nbsp; ✅ npm widget published<br />
+            ✅ Citation-backed answers on live demo
+          </div>
+        </div>
+
+        <!-- ─ Comparison ─ -->
+        <div class="card">
+          <div class="card-header-badge">⚖ System Comparison</div>
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>System</th>
+                <th>Multi-Tenant</th>
+                <th>Widget</th>
+                <th>Hosted Inf.</th>
+                <th>Open Source</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>LangChain Tutorial</td>
+                <td><span class="badge-status cx">✗ No</span></td>
+                <td><span class="badge-status cx">✗ No</span></td>
+                <td><span class="badge-status cx">✗ No</span></td>
+                <td><span class="badge-status ck">✓ Yes</span></td>
+              </tr>
+              <tr>
+                <td>Chatbase / CustomGPT</td>
+                <td><span class="badge-status ck">✓ Yes</span></td>
+                <td><span class="badge-status ck">✓ Yes</span></td>
+                <td><span class="badge-status cp">~ Part</span></td>
+                <td><span class="badge-status cx">✗ No</span></td>
+              </tr>
+              <tr>
+                <td>Fine-tuned LLM</td>
+                <td><span class="badge-status cx">✗ No</span></td>
+                <td><span class="badge-status cx">✗ No</span></td>
+                <td><span class="badge-status cx">✗ No</span></td>
+                <td><span class="badge-status cp">~ Part</span></td>
+              </tr>
+              <tr class="hl-row">
+                <td><strong>Relay</strong><span class="our-tag">OURS</span></td>
+                <td><span class="badge-status ck">✓ Full</span></td>
+                <td><span class="badge-status ck">✓ npm</span></td>
+                <td><span class="badge-status ck">✓ Yes</span></td>
+                <td><span class="badge-status ck">✓ Yes</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="font-size:7px;color:#475569;margin-top:5px;line-height:1.45;font-weight:600">
+            ✓ Isolation-aware &nbsp;·&nbsp; ✓ Citation-grounded<br />
+            ✓ Free-tier deployable &nbsp;·&nbsp; ✓ Full production stack
+          </div>
+        </div>
+
+      </div><!-- /poster-body -->
+
+      <!-- FOOTER -->
+      <div class="poster-footer">
+        <div class="footer-left">
+          <strong>Guide:</strong> Prof. Swati Ghule &nbsp;|&nbsp;
+          <strong>HOD:</strong> Prof. Dr. Shivani A. Budhkar &nbsp;|&nbsp;
+          <strong>Principal:</strong> Prof. Dr. Mrs. K. R. Joshi<br />
+          P.E.S.'s Modern College of Engineering, Pune &nbsp;|&nbsp; MCA Department &nbsp;|&nbsp; Academic Year 2026–27
+        </div>
+        <div class="footer-right">
+          <div class="footer-link">
+            <span class="footer-link-label">Live Demo Platform</span>
+            <span class="footer-url">relayy-dun.vercel.app</span>
+          </div>
+          <div class="footer-link">
+            <span class="footer-link-label">Published npm Package</span>
+            <span class="footer-url">relay-chat-widget</span>
+          </div>
+          <div class="year-badge">MCA 2026–27</div>
+        </div>
+      </div>
+
+    </div><!-- /poster -->
+  </div><!-- /pw -->
+
+  <script>
+    const poster = document.getElementById('poster');
+
+    function setSize(sz) {
+      if (sz === 'a3') poster.classList.add('a3-size');
+      else poster.classList.remove('a3-size');
+    }
+
+    function printSize(sz) {
+      let style = document.getElementById('__ps');
+      if (!style) {
+        style = document.createElement('style');
+        style.id = '__ps';
+        document.head.appendChild(style);
+      }
+      if (sz === 'a3') {
+        poster.classList.add('a3-size');
+        style.textContent = `
+          @page { size: A3 portrait; margin: 0; }
+          html, body { background: white !important; margin: 0 !important; padding: 0 !important; width: 297mm !important; height: 420mm !important; }
+          .poster-wrapper { padding: 0 !important; margin: 0 !important; display: block !important; width: 297mm !important; height: 420mm !important; }
+          .poster {
+            width: 297mm !important;
+            height: 420mm !important;
+            min-height: 420mm !important;
+            display: flex !important;
+            flex-direction: column !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          .poster .poster-body { flex: 1 !important; align-content: space-between; }
+        `;
+      } else {
+        poster.classList.remove('a3-size');
+        style.textContent = `
+          @page { size: A4 portrait; margin: 0; }
+          html, body { background: white !important; margin: 0 !important; padding: 0 !important; width: 210mm !important; height: 297mm !important; }
+          .poster-wrapper { padding: 0 !important; margin: 0 !important; display: block !important; width: 210mm !important; height: 297mm !important; }
+        `;
+      }
+      setTimeout(() => window.print(), 250);
+    }
+  </script>
+</body>
+
+</html>
